@@ -3,8 +3,8 @@
 // @namespace	Nandee
 // @include		*steamgifts.com*
 // @version		1.2
-// @downloadURL	https://github.com/nandee95/Extended-Steamgifts/raw/master/Extended_Steamgifts.user.js
-// @updateURL	https://github.com/nandee95/Extended-Steamgifts/raw/master/Extended_Steamgifts.user.js
+// @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
+// @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @run-at		document-end
 // @grant		none
 // ==/UserScript==
