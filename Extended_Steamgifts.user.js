@@ -52,6 +52,19 @@ $("body").prepend("										\
 {														\
 	cursor:pointer;										\
 }														\
+.wishlist-giveaways .giveaway__heading__name {   \
+    color: #719A47;   \
+}   \
+.wishlist-giveaways {   \
+    width: 100%+30px;   \
+    margin-right: -15px;   \
+    margin-left: -15px;   \
+    padding-right: 15px;   \
+    padding-left: 15px;   \
+    border: 1px solid #d2d6e0;   \
+    border-radius: 4px;   \
+    background-image: linear-gradient(rgb(250,255,250) 0,rgb(245,254,245) 100%);   \
+}   \
 </style>												\
 ");
 
@@ -66,20 +79,6 @@ var hash = $(location).attr('hash');
 //Funcs
 function getPos(str, m, i) {
 	return str.split(m, i).join(m).length;
-}
-
-function get_time(time) {
-    var mL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    var dnow = new Date();
-    var ppos = getPos(time, ":", 1);
-    var hour = Number(time[ppos - 2]) * 10 + Number(time[ppos - 1]);
-    var pm = time.indexOf("pm") > -1 ? true : false;
-    var newhour = pm ? hour + 12 : 12
-	var t2morro= new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-	var tyest= new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-    var f = time.replace("am", "").replace("Today,", mL[dnow.getMonth()] + " " + dnow.getDate() + ", " + dnow.getFullYear() + ",").replace("pm", "").replace(hour + ":", Math.floor(newhour / 10) + newhour - Math.floor(newhour / 10) + ":").replace("Tomorrow,", mL[t2morro.getMonth()] + " " + t2morro.getDate() + ", " + t2morro.getFullYear() + ",").replace("Yesterday,", mL[tyest.getMonth()] + " " + tyest.getDate() + ", " + tyest.getFullYear() + ",");
-    var dend = new Date(f);
-    return dend.getTime();
 }
 
 //Options
@@ -139,9 +138,11 @@ function display_options()
 			";
 	}
 	addToOptions("Enter/Miss button","esg_entermiss",1);
-	addToOptions("Auto scrolling","esg_autoscroll",1);
-	addToOptions("Display Chances","esg_chances",1);
+	addToOptions("Endless scrolling","esg_autoscroll",1);
+	addToOptions("Display chances","esg_chances",1);
 	addToOptions("Fixed header","esg_fixedheader",1);
+	addToOptions("Hightlight wishlist","esg_wishlist",1);
+	addToOptions("Scrolltop button","esg_scrolltop",1);
 	page.html("				\
 		<div class=\"page__heading\"> \
         <div class=\"page__heading__breadcrumbs\">   \
@@ -191,17 +192,21 @@ function display_about()
             <i class=\"fa fa-angle-right\">   \
             </i><a href=\"/account/profile/sync#esg_about\">About</a>   \
             </div></div>    \
-            <form style=\"width: 150px; margin: 10px 0 -100px auto;\" action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">   \
+            <div style=\"float:right;width:200px;text-align:center;margin-bottom:5px\">			\
+			<span style=\"font-size:25px\">If you want to <br>support me:</span>\
+			<form style=\"width: 150px;padding-left:25px;padding-top:10px;margin-bottom:-15px\" action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">   \
             <input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">   \
             <input type=\"hidden\" name=\"hosted_button_id\" value=\"M62RESN46NKWS\">   \
-            <input style=\"border:none;padding:0\" type=\"image\" src=\"https://raw.githubusercontent.com/nandee95/Extended-Steamgifts/master/img/buy-me-a-beer.png\" border=\"0\" name=\"submit\" alt=\"PayPal - The safer, easier way to pay online!\">   \
+            <input style=\"border:none;padding:0;\" type=\"image\" src=\"https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/buy_me_a_beer.png\" border=\"0\" name=\"submit\" alt=\"PayPal - The safer, easier way to pay online!\">   \
             <img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_US/i/scr/pixel.gif\" width=\"1\" height=\"1\">   \
-            </form> \
-            <a style=\"margin: 10px auto 10px auto; display:block;width:184px\" alt=\"Steam Profile\" href=\"http://steamcommunity.com/id/nandee95\">    \
+            </form> \<br><center style=\"font-size: 50px;font-weight:bold\">OR</center><br>	\
+			<a target=\"_blank\" href=\"https://steamcommunity.com/tradeoffer/new/?partner=95793561&token=HxnczDWg\"><img src=\"https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png\"></a>			\
+            </div>\
+			<a style=\"margin: 10px auto 10px auto; display:block;width:184px\" alt=\"Steam Profile\" href=\"http://steamcommunity.com/id/nandee95\">    \
             <img style=\"border-radius:15px;border:5px solid rgb(150,160,190)\" src=\"http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/a6/a6ecd53808894e65e86192c6177ba167ad90fab3_full.jpg\">   \
             </a>    \
-            <center class=\"giveaway__heading__name\" style=\"margin:10px 0 10px 0\">Extended Steamgifts By: Nandee<br>    \
-            </center>   \
+            <span style=\"margin:10px auto 10px auto;display:block;font-weight:bold;font-size:30px\">Extended Steamgifts By: Nandee<br>    \
+            </span>   \
 			<span>Tester/thinker:</span> Pele	\
             ");
 }
@@ -249,7 +254,7 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 	var source=$(".table:last").html();
 	$(".sidebar__navigation:last").after("					\
 	<h3 class='sidebar__heading'>Recommended Sales</h3><div class='table' style='width:100%'>"+c+"</div>		\
-	<a style=\"padding:5px;font-weight:bold;\" class=\"page__heading__button page__heading__button--green\" href=\"/sales\">More discounts<i class=\"fa fa-angle-right\"></i></a>	\
+	<a style=\"padding:5px;font-weight:bold;float:right\" class=\"page__heading__button page__heading__button--green\" href=\"/sales\">More discounts<i class=\"fa fa-angle-right\"></i></a>	\
 	")
 }
 
@@ -334,14 +339,15 @@ if(Number(GM_getValue("esg_fixedheader",1)))
 	$(".featured__container").css("margin-top","38px");
 }
 
-//Each giveaway
+//Giveaway function
+var wishlist=new Array(),wlcount=0;
 $.fn.format_ga = function () {
 	return $(this).each(function() { 
 	var ga = $(this).find('.giveaway__heading').parent().parent().parent();
 	
 	//Read some data
-	var code = $(ga).find('.giveaway__heading__name').attr('href');
-	code = code.substring(getPos(code, '/', 2) + 1, getPos(code, '/', 3));
+	var url = $(ga).find('.giveaway__heading__name').attr('href');
+	var code = url.substring(getPos(url, '/', 2) + 1, getPos(url, '/', 3));
 	
 	var c = $(ga).find('.giveaway__heading__thin').text();
 	var copies = 1,
@@ -363,15 +369,12 @@ $.fn.format_ga = function () {
 	if (chance > 100)
 		chance = 100;
 	
-	var time=$(this).find(".giveaway__columns").find("div:first");
+	var time=$(ga).find(".giveaway__columns").find("div:first");
 	var active=1;
 	if (time.text().indexOf('ago') >  - 1)
 	{
 		active=0;
 	}
-	
-	var end=$(time).find("span").attr("title");
-	var start=$(this).find(".giveaway__column--width-fill").find("span").attr("title");
 	
 	//Display chances
 	if(Number(GM_getValue("esg_chances",1))||loggedin)
@@ -388,7 +391,7 @@ $.fn.format_ga = function () {
 	if(Number(GM_getValue("esg_entermiss",1))&&loggedin&&active)
 	{
 		$(ga).find('.giveaway__row-inner-wrap').removeClass('is-faded');
-		$(this).find(".giveaway__columns").append("<form>   \
+		$(ga).find(".giveaway__columns").append("<form>   \
             <input type=\"hidden\" name=\"xsrf_token\" value=\""+xsrf+"\" />   \
             <input type=\"hidden\" name=\"do\" value=\"\" />   \
             <input type=\"hidden\" name=\"code\" value=\""+code+"\" />   \
@@ -397,18 +400,12 @@ $.fn.format_ga = function () {
             <div class=\"sidebar__entry-custom sidebar__entry-loading is-disabled is-hidden\"><i class=\"fa fa-refresh fa-spin\"></i> Wait</div>   \
             </form>");
 	}
-	//time %
-	/*
-	var dnow = new Date();
-	var e = get_time(end);
-	var s = get_time(start);
-	var now = dnow.getTime();
-	var p=Math.floor((now-s)/(e-s)*100)
-	//$(this).find(".giveaway__columns").find("span:first").text(p)
-	var tt=$(this).find(".giveaway__columns").find("div:first");
-	tt.css("width","150px");
-	tt.clone().text("_").css("margin-left","-173px").css("width",Math.floor(1.5*p)+"px").css("margin-right",(150-(1.5*p))+"px").css("background-image","linear-gradient(#CAEEA7 0%, #B4DF8A 50%, #9AC96A 100%)").insertAfter(tt);
-	*/
+	//Highlight wishlisted
+	if(Number(GM_getValue("esg_wishlist",1))&&loggedin&&$.inArray(url,wishlist)!=-1)
+	{
+        $(ga).addClass("wishlist-giveaways");
+		$(ga).find(".giveaway__heading__name").prepend("[WISHLIST] ");
+	}
 });
 };
 //Format giveaways (load)
@@ -416,8 +413,6 @@ $('.giveaway__row-outer-wrap').format_ga();
 
 //Bugfix: Enter/Miss Button's click event call
 setTimeout(function () {
-$(".sidebar__entry-insert").prop ("onclick", null);
-$(".sidebar__entry-delete").prop ("onclick", null);
 $(document).on( 'click', '.sidebar__entry-insert, .sidebar__entry-delete', function () {
         var t = $(this);
         t.addClass("is-hidden"), t.closest("form").find(".sidebar__entry-loading").removeClass("is-hidden"), t.closest("form").find("input[name=do]").val(t.attr("data-do")), $.ajax({
@@ -431,3 +426,45 @@ $(document).on( 'click', '.sidebar__entry-insert, .sidebar__entry-delete', funct
         });
 });
 },10);
+
+//Hightlight wishlist
+if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
+{
+	$.ajax({
+	url: "http://www.steamgifts.com/giveaways/search?type=wishlist",
+	success: function(source) {    
+		$(source).find(".giveaway__heading__name").each(function(index) {
+			if($(this).closest(".pinned-giveaways").length==0)
+			{
+				wishlist.push($(this).attr("href"));
+				$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").prepend("[WISHLIST] ")
+				$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").closest(".giveaway__row-outer-wrap").addClass("wishlist-giveaways");
+				wlcount++;
+		   }
+		});
+	}});
+}
+
+//Scroll to top
+if(GM_getValue("esg_scrolltop",1))
+{	
+	$("body").prepend("<div class=\"scroll-top form__submit-button\" style=\"cursor:pointer;position: fixed;bottom: 10px;right: 40px;padding:10px !important;size: 30px 30px;transform:rotate(-90deg);opacity:0.95\">></div>");
+	$(".scroll-top").hide();
+	$(".scroll-top").click(function () {
+		$('html, body').animate({ scrollTop: 0 }, 'fast');	
+	});
+	var slast=0;
+	$(window).scroll(function () {
+		var st=$(window).scrollTop();
+		var x=$(window).height();
+		if(st>=x&&slast<x)	
+		{		
+			$(".scroll-top").fadeIn("fast");
+		}
+		else if(st<x&&slast<=x)
+		{
+			$(".scroll-top").fadeOut("fast");
+		}
+		slast=$(window).scrollTop();
+	});
+}
