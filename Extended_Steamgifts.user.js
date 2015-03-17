@@ -2,7 +2,7 @@
 // @name        Extended Steamgifts
 // @namespace	Nandee
 // @include		*steamgifts.com*
-// @version		1.3
+// @version		1.4
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @run-at		document-end
@@ -210,13 +210,13 @@ function display_about()
 			<span>Tester/thinker:</span> Pele	\
             ");
 }
-//Sales
+//Recommended Sales & Active Discussions
 if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1)))
 {
 	var c="";
 	$(".table__rows:last").find(".table__row-outer-wrap").each(function () {
 		var img = $(this).find(".global__image-inner-wrap").css('background-image');
-		img = img.replace('url(','').replace(')','').replace('"','');
+		img = img.replace('url(','').replace(')','').replace('"','').replace('"','');
 		var site=$(this).find(".table__column__secondary-link:last").text();
 		var siteimg="";
 		var percent=$(this).find(".table__column--width-small:first").find("span").text();
@@ -251,10 +251,27 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 		<div style='height:20px'><s>"+before+"</s> -<i class=\"fa fa-caret-right\"></i> "+after+"</div>			\
 		</div></div></a>";
 	});
+	var c2="";
+	$(".table__rows:first").find(".table__row-outer-wrap").each(function () {
+		var img = $(this).find(".global__image-inner-wrap").css('background-image');
+		img = img.replace('url(','').replace(')','').replace('"','').replace('"','');
+		var title=$(this).find(".table__column__heading").text();
+		var url=$(this).find(".table__column__heading").attr("href");
+		var comments=$(this).find(".text-center").text();
+		var info=$(this).find(".table__column--width-fill").find("p").html();
+		c2+="<div style=\"border-bottom:1px solid lightgray;padding-bottom:5px;margin-bottom:-5px\">	\
+		<img style=\"width:40px;height:40px;margin-right:5px;border:5px solid white;border-radius:5px;display:inline\" src=\""+img+"\">	\
+		<div style=\"max-width:255px;display:inline-block\">	\
+		<a class=\"table__column__heading\" href='"+url+"'>"+title+"</a><br>	\
+		<i style=\"color:lightgray;\" class=\"fa fa-comment\"></i> "+comments+" comment"+(Number(comments.replace(",",""))>1?"s":"")+"	\
+		<br>"+info+"</div></div><br>";
+	});
 	var source=$(".table:last").html();
 	$(".sidebar__navigation:last").after("					\
 	<h3 class='sidebar__heading'>Recommended Sales</h3><div class='table' style='width:100%'>"+c+"</div>		\
 	<a style=\"padding:5px;font-weight:bold;float:right\" class=\"page__heading__button page__heading__button--green\" href=\"/sales\">More discounts<i class=\"fa fa-angle-right\"></i></a>	\
+	<h3 class='sidebar__heading' style='margin-top:35px'>Active Discussions</h3><div class='table' style='width:100%'>"+c2+"</div>		\
+	<a style=\"padding:5px;font-weight:bold;float:right\" class=\"page__heading__button page__heading__button--green\" href=\"/discussions\">More topics<i class=\"fa fa-angle-right\"></i></a>	\
 	")
 }
 
@@ -448,7 +465,7 @@ if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
 //Scroll to top
 if(GM_getValue("esg_scrolltop",1))
 {	
-	$("body").prepend("<div class=\"scroll-top form__submit-button\" style=\"cursor:pointer;position: fixed;bottom: 10px;right: 40px;padding:10px !important;size: 30px 30px;transform:rotate(-90deg);opacity:0.95\">></div>");
+	$("body").prepend("<div class=\"scroll-top form__submit-button\" style=\"cursor:pointer;position: fixed;bottom: 10px;right: 40px;padding:10px !important;size: 30px 30px;transform:rotate(-90deg);opacity:0.75\">></div>");
 	$(".scroll-top").hide();
 	$(".scroll-top").click(function () {
 		$('html, body').animate({ scrollTop: 0 }, 'fast');	
