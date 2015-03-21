@@ -2,7 +2,7 @@
 // @name        Extended Steamgifts
 // @namespace	Nandee
 // @include		*steamgifts.com*
-// @version		1.4
+// @version		1.5
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @run-at		document-end
@@ -393,6 +393,10 @@ $.fn.format_ga = function () {
 		active=0;
 	}
 	
+	var req=Number($(ga).find(".giveaway__heading__thin:last").text().replace("(","").replace(")","").replace("P",""));
+	var has=Number($(".nav__points").text());
+	var enough=req<=has?true:false;
+	
 	//Display chances
 	if(Number(GM_getValue("esg_chances",1))||loggedin)
 	{
@@ -412,9 +416,10 @@ $.fn.format_ga = function () {
             <input type=\"hidden\" name=\"xsrf_token\" value=\""+xsrf+"\" />   \
             <input type=\"hidden\" name=\"do\" value=\"\" />   \
             <input type=\"hidden\" name=\"code\" value=\""+code+"\" />   \
-            <div data-do=\"entry_insert\" class=\"sidebar__entry-custom sidebar__entry-insert"+(entered?" is-hidden":"")+"\"><i class=\"fa fa-plus-circle\"></i> Enter</div>   \
+            <div data-do=\"entry_insert\" class=\"sidebar__entry-custom sidebar__entry-insert"+(!entered&&enough?"":" is-hidden")+"\"><i class=\"fa fa-plus-circle\"></i> Enter</div>   \
             <div data-do=\"entry_delete\" class=\"sidebar__entry-custom sidebar__entry-delete"+(entered?"":" is-hidden")+"\"><i class=\"fa fa-minus-circle\"></i> Miss</div>   \
             <div class=\"sidebar__entry-custom sidebar__entry-loading is-disabled is-hidden\"><i class=\"fa fa-refresh fa-spin\"></i> Wait</div>   \
+			<div class=\"sidebar__entry-custom sidebar__error "+(!enough&&!entered?"":" is-hidden")+"\">"+(!enough&&!entered?"<i class=\"fa fa-exclamation-circle\"></i> Not enough points":"")+"</div>   \
             </form>");
 	}
 	//Highlight wishlisted
@@ -438,11 +443,59 @@ $(document).on( 'click', '.sidebar__entry-insert, .sidebar__entry-delete', funct
             dataType: "json",
             data: t.closest("form").serialize(),
             success: function(e) {
-                t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden"), "success" === e.type ? t.hasClass("sidebar__entry-insert") ? t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden") : t.hasClass("sidebar__entry-delete") && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden") : "error" === e.type && t.closest("form").html("undefined" != typeof e.link && e.link !== !1 ? '<a href="' + e.link + '" class="sidebar__entry-custom sidebar__error"><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<div class="sidebar__entry-custom sidebar__error is-disabled"><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</div>"), "undefined" != typeof e.entry_count && e.entry_count !== !1 && $(".live__entry-count").text(e.entry_count), $(".nav__points").text(e.points)
-            }
+                t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden"), "success" === e.type ? t.hasClass("sidebar__entry-insert") ? t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden") : t.hasClass("sidebar__entry-delete") && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden") : "error" === e.type && t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== !1 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg ), "undefined" != typeof e.entry_count && e.entry_count !== !1 && $(".live__entry-count").text(e.entry_count), $(".nav__points").text(e.points)
+				update_gas(e.points);
+			}
         });
 });
 },10);
+
+function update_gas(p)
+{
+	if(p==-1)	p=Number($(".nav__points").text());
+	$('.giveaway__row-outer-wrap').each(function () {
+		var req=Number($(this).find(".giveaway__heading__thin:last").text().replace("(","").replace(")","").replace("P",""));
+		var entered = !$(this).find(".sidebar__entry-delete").hasClass('is-hidden');
+		if(req>p&&!entered)
+		{
+			$(this).find(".sidebar__entry-delete").addClass("is-hidden");
+			$(this).find(".sidebar__entry-insert").addClass("is-hidden");
+			$(this).find(".sidebar__entry-loading").addClass("is-hidden");
+			$(this).find(".sidebar__error").removeClass("is-hidden").html('<i class="fa fa-exclamation-circle"></i> Not enough points');
+		}
+		else if(entered)
+		{
+			$(this).find(".sidebar__entry-delete").removeClass("is-hidden");
+			$(this).find(".sidebar__entry-insert").addClass("is-hidden");
+			$(this).find(".sidebar__entry-loading").addClass("is-hidden");
+			$(this).find(".sidebar__error").addClass("is-hidden");
+		}
+		else
+		{
+			$(this).find(".sidebar__entry-delete").addClass("is-hidden");
+			$(this).find(".sidebar__entry-insert").removeClass("is-hidden");
+			$(this).find(".sidebar__entry-loading").addClass("is-hidden");
+			$(this).find(".sidebar__error").addClass("is-hidden");
+		}
+	});
+}
+
+//Refresh points every sec
+setInterval(function () {
+	$.ajax({
+		url: "/ajax.php",
+		type: "POST",
+		dataType: "json",
+		data: "xsrf_token="+xsrf+"&do=entry_insert",
+		success: function(e) {
+			if($(".nav__points").text()!=e.points)
+			{
+				$(".nav__points").text(e.points);
+				update_gas(e.points);
+			}
+		}
+	});
+},1000);
 
 //Hightlight wishlist
 if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
