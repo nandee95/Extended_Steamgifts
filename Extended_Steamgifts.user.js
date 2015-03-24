@@ -2,7 +2,7 @@
 // @name        Extended Steamgifts
 // @namespace	Nandee
 // @include		*steamgifts.com*
-// @version		1.5
+// @version		1.5.2[BETA]
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @run-at		document-end
@@ -75,6 +75,7 @@ var loggedin = ($('.nav__sits').length > 0) ? false : true;
 var totalpage = Number($('.pagination__navigation').find('a:last').attr('data-page-number'));
 var currentpage = Number($('.pagination__navigation').find('.is-selected').attr('data-page-number'));
 var hash = $(location).attr('hash');
+var ver=GM_info.script.version;
 
 //Funcs
 function getPos(str, m, i) {
@@ -108,6 +109,14 @@ if (path.match('^/account/'))
     if(hash=="#esg_about")
         display_about();
 }
+
+window.onhashchange = function () {
+	hash = $(location).attr('hash');
+	if(hash=="#esg_options")
+        display_options();
+    if(hash=="#esg_about")
+        display_about();
+};
 
 function display_options()
 {
@@ -202,12 +211,11 @@ function display_about()
             </form> \<br><center style=\"font-size: 50px;font-weight:bold\">OR</center><br>	\
 			<a target=\"_blank\" href=\"https://steamcommunity.com/tradeoffer/new/?partner=95793561&token=HxnczDWg\"><img src=\"https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png\"></a>			\
             </div>\
-			<a style=\"margin: 10px auto 10px auto; display:block;width:184px\" alt=\"Steam Profile\" href=\"http://steamcommunity.com/id/nandee95\">    \
+			<a style=\"margin: 10px auto 10px 250px; display:block;width:184px\" alt=\"Steam Profile\" href=\"http://steamcommunity.com/id/nandee95\">    \
             <img style=\"border-radius:15px;border:5px solid rgb(150,160,190)\" src=\"http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/a6/a6ecd53808894e65e86192c6177ba167ad90fab3_full.jpg\">   \
             </a>    \
-            <span style=\"margin:10px auto 10px auto;display:block;font-weight:bold;font-size:30px\">Extended Steamgifts By: Nandee<br>    \
+            <span style=\"margin:10px auto 10px 100px;display:block;font-weight:bold;font-size:30px\">Extended Steamgifts "+ver+" By: Nandee<br>    \
             </span>   \
-			<span>Tester/thinker:</span> Pele	\
             ");
 }
 //Recommended Sales & Active Discussions
@@ -418,7 +426,7 @@ $.fn.format_ga = function () {
             <input type=\"hidden\" name=\"code\" value=\""+code+"\" />   \
             <div data-do=\"entry_insert\" class=\"sidebar__entry-custom sidebar__entry-insert"+(!entered&&enough?"":" is-hidden")+"\"><i class=\"fa fa-plus-circle\"></i> Enter</div>   \
             <div data-do=\"entry_delete\" class=\"sidebar__entry-custom sidebar__entry-delete"+(entered?"":" is-hidden")+"\"><i class=\"fa fa-minus-circle\"></i> Miss</div>   \
-            <div class=\"sidebar__entry-custom sidebar__entry-loading is-disabled is-hidden\"><i class=\"fa fa-refresh fa-spin\"></i> Wait</div>   \
+            <div class=\"sidebar__entry-custom sidebar__entry-loading is-hidden\"><i class=\"fa fa-refresh fa-spin\"></i> Wait</div>   \
 			<div class=\"sidebar__entry-custom sidebar__error "+(!enough&&!entered?"":" is-hidden")+"\">"+(!enough&&!entered?"<i class=\"fa fa-exclamation-circle\"></i> Not enough points":"")+"</div>   \
             </form>");
 	}
@@ -435,6 +443,7 @@ $('.giveaway__row-outer-wrap').format_ga();
 
 //Bugfix: Enter/Miss Button's click event call
 setTimeout(function () {
+$(".sidebar__entry-insert, .sidebar__entry-delete").unbind("click");
 $(document).on( 'click', '.sidebar__entry-insert, .sidebar__entry-delete', function () {
         var t = $(this);
         t.addClass("is-hidden"), t.closest("form").find(".sidebar__entry-loading").removeClass("is-hidden"), t.closest("form").find("input[name=do]").val(t.attr("data-do")), $.ajax({
@@ -448,8 +457,10 @@ $(document).on( 'click', '.sidebar__entry-insert, .sidebar__entry-delete', funct
 			}
         });
 });
+$(document).on( 'click', '.sidebar__error', function () {
+	$(this).addClass("is-hidden").parent().find(".sidebar__entry-insert").removeClass("is-hidden");
+});
 },10);
-
 function update_gas(p)
 {
 	if(p==-1)	p=Number($(".nav__points").text());
@@ -538,3 +549,41 @@ if(GM_getValue("esg_scrolltop",1))
 		slast=$(window).scrollTop();
 	});
 }
+//SGE menu
+$(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before("	\
+	<div class=\"nav__button-container\">		\
+		<div class=\"nav__relative-dropdown is-hidden\">		\
+			<div class=\"nav__absolute-dropdown\">		\
+				<a class=\"nav__row\" target=\"_blank\" href=\"http://steamcommunity.com/groups/extendedsg\">		\
+				<i class=\"icon-grey fa fa-fw fa-steam\"></i>		\
+				<div class=\"nav__row__summary\">		\
+					<p class=\"nav__row__summary__name\">Steam Group</p>		\
+					<p class=\"nav__row__summary__description\">Open ESG steam group        \</p>		\
+				</div>		\
+				</a>		\
+				<a class=\"nav__row\" href=\"/account/profile/sync#esg_options\">		\
+				<i class=\"icon-blue fa fa-fw fa-cog\"></i>		\
+				<div class=\"nav__row__summary\">		\
+					<p class=\"nav__row__summary__name\">Options</p>		\
+					<p class=\"nav__row__summary__description\">Open options        \</p>		\
+				</div>		\
+				</a>		\
+				"+(ver.indexOf("[BETA]")>-1?"<a class=\"nav__row\" href=\"http://steamcommunity.com/groups/extendedsg/discussions/0/\">		\
+				<i class=\"icon-red fa fa-fw fa-bug\"></i>		\
+				<div class=\"nav__row__summary\">		\
+					<p class=\"nav__row__summary__name\">Bug report</p>		\
+					<p class=\"nav__row__summary__description\">Report bugs here!        \</p>		\
+				</div>		\
+				</a>":"")+"	\
+				<a class=\"nav__row\" href=\"/account/profile/sync#esg_about\">		\
+				<i class=\"icon-yellow fa fa-fw fa-user\"></i>		\
+				<div class=\"nav__row__summary\">		\
+					<p class=\"nav__row__summary__name\">About</p>		\
+					<p class=\"nav__row__summary__description\">Extended Steamgifts "+ver+"        \</p>		\
+				</div>		\
+				</a>		\
+			</div>		\
+		</div>		\
+		<a class=\"nav__button nav__button--is-dropdown\" href=\"http://steamcommunity.com/groups/extendedsg/discussions\">ESG</a>		\
+		<div class=\"nav__button nav__button--is-dropdown-arrow\"><i class=\"fa fa-angle-down\"></i></div>		\
+	</div>");
