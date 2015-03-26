@@ -2,12 +2,28 @@
 // @name        Extended Steamgifts
 // @namespace	Nandee
 // @include		*steamgifts.com*
-// @version		1.5.2[BETA]
+// @version		1.5.3[BETA]
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @run-at		document-end
 // @grant		none
 // ==/UserScript==
+
+/*
+Changelog:
+1.5.2[BETA] (03-24-2015)
+- First release
+1.5.3[BETA] (03-26-2015)
+- Changed 'Miss' to 'Remove'
+- Fixed enter button on profile page
+- Blue line fixed behind the header
+- Giveaway filter fix
+- Dropdown menu fix
+- Fixed Options (Scroll to top)
+- Added description button
+- Fixed problems with home page
+- Changed some icons
+*/
 
 this.GM_getValue=function (key,def) {
 	return localStorage[key] || def;
@@ -76,7 +92,7 @@ var totalpage = Number($('.pagination__navigation').find('a:last').attr('data-pa
 var currentpage = Number($('.pagination__navigation').find('.is-selected').attr('data-page-number'));
 var hash = $(location).attr('hash');
 var ver=GM_info.script.version;
-
+var username=$(".nav__avatar-outer-wrap").attr("href").replace("/user/","");
 //Funcs
 function getPos(str, m, i) {
 	return str.split(m, i).join(m).length;
@@ -146,12 +162,12 @@ function display_options()
 			</div>   \
 			";
 	}
-	addToOptions("Enter/Miss button","esg_entermiss",1);
+	addToOptions("Enter/Remove button","esg_enterremove",1);
 	addToOptions("Endless scrolling","esg_autoscroll",1);
 	addToOptions("Display chances","esg_chances",1);
 	addToOptions("Fixed header","esg_fixedheader",1);
 	addToOptions("Hightlight wishlist","esg_wishlist",1);
-	addToOptions("Scrolltop button","esg_scrolltop",1);
+	addToOptions("Scroll to top button","esg_scrolltop",1);
 	page.html("				\
 		<div class=\"page__heading\"> \
         <div class=\"page__heading__breadcrumbs\">   \
@@ -218,26 +234,29 @@ function display_about()
             </span>   \
             ");
 }
+
 //Recommended Sales & Active Discussions
 if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1)))
 {
 	var c="";
 	$(".table__rows:last").find(".table__row-outer-wrap").each(function () {
+
 		var img = $(this).find(".global__image-inner-wrap").css('background-image');
+		if(img)
 		img = img.replace('url(','').replace(')','').replace('"','').replace('"','');
 		var site=$(this).find(".table__column__secondary-link:last").text();
 		var siteimg="";
 		var percent=$(this).find(".table__column--width-small:first").find("span").text();
 		//var wishlist=$(this).find(".fa-heart").length>0?true:false;
-		
+
 		var del=$(this).find("del");
 		var before=$(del).text();
 		var p=del.parent();
 		$(del).remove();
 		var after=$(p).text();
-		
 		var url=$(this).find("a:first").attr("href");
-		var appid=Number(img.slice(getPos(img,"/",5)+1,getPos(img,"/",6)));
+		var appid=-1
+		if(img)  appid=Number(img.slice(getPos(img,"/",5)+1,getPos(img,"/",6)));
 		if(site=="Steam")
 		{
 			siteimg="http://steamcommunity.com//favicon.ico";
@@ -360,10 +379,11 @@ if(Number(GM_getValue("esg_fixedheader",1)))
 	$("header").css("width","100%");
 	$("header").css("z-index","100");
 	$("header").css("top","0");
-	$(".page__outer-wrap").css("margin-top","38px");
-	$(".featured__container").css("margin-top","38px");
+	if($(".featured__container").length>0)
+		$(".featured__container").css("margin-top","38px");
+	else
+		$(".page__outer-wrap").css("margin-top","38px").css("right","0");
 }
-
 //Giveaway function
 var wishlist=new Array(),wlcount=0;
 $.fn.format_ga = function () {
@@ -404,6 +424,7 @@ $.fn.format_ga = function () {
 	var req=Number($(ga).find(".giveaway__heading__thin:last").text().replace("(","").replace(")","").replace("P",""));
 	var has=Number($(".nav__points").text());
 	var enough=req<=has?true:false;
+	var user=$(ga).find(".giveaway__username").text();
 	
 	//Display chances
 	if(Number(GM_getValue("esg_chances",1))||loggedin)
@@ -416,8 +437,8 @@ $.fn.format_ga = function () {
 		$(ga).find('.giveaway__heading').append('<span style="color:' + color + '" class="giveaway__chance">' + chance.toFixed(2) + '% chance</span>');
 	}
 	
-	//Enter/Miss button
-	if(Number(GM_getValue("esg_entermiss",1))&&loggedin&&active)
+	//Enter/Remove button
+	if(Number(GM_getValue("esg_enterremove",1))&&loggedin&&active&&user!=username)
 	{
 		$(ga).find('.giveaway__row-inner-wrap').removeClass('is-faded');
 		$(ga).find(".giveaway__columns").append("<form>   \
@@ -425,7 +446,7 @@ $.fn.format_ga = function () {
             <input type=\"hidden\" name=\"do\" value=\"\" />   \
             <input type=\"hidden\" name=\"code\" value=\""+code+"\" />   \
             <div data-do=\"entry_insert\" class=\"sidebar__entry-custom sidebar__entry-insert"+(!entered&&enough?"":" is-hidden")+"\"><i class=\"fa fa-plus-circle\"></i> Enter</div>   \
-            <div data-do=\"entry_delete\" class=\"sidebar__entry-custom sidebar__entry-delete"+(entered?"":" is-hidden")+"\"><i class=\"fa fa-minus-circle\"></i> Miss</div>   \
+            <div data-do=\"entry_delete\" class=\"sidebar__entry-custom sidebar__entry-delete"+(entered?"":" is-hidden")+"\"><i class=\"fa fa-minus-circle\"></i> Remove</div>   \
             <div class=\"sidebar__entry-custom sidebar__entry-loading is-hidden\"><i class=\"fa fa-refresh fa-spin\"></i> Wait</div>   \
 			<div class=\"sidebar__entry-custom sidebar__error "+(!enough&&!entered?"":" is-hidden")+"\">"+(!enough&&!entered?"<i class=\"fa fa-exclamation-circle\"></i> Not enough points":"")+"</div>   \
             </form>");
@@ -438,10 +459,11 @@ $.fn.format_ga = function () {
 	}
 });
 };
+
 //Format giveaways (load)
 $('.giveaway__row-outer-wrap').format_ga();
 
-//Bugfix: Enter/Miss Button's click event call
+//Enter/Remove Button click
 setTimeout(function () {
 $(".sidebar__entry-insert, .sidebar__entry-delete").unbind("click");
 $(document).on( 'click', '.sidebar__entry-insert, .sidebar__entry-delete', function () {
@@ -507,7 +529,6 @@ setInterval(function () {
 		}
 	});
 },1000);
-
 //Hightlight wishlist
 if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
 {
@@ -527,7 +548,7 @@ if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
 }
 
 //Scroll to top
-if(GM_getValue("esg_scrolltop",1))
+if(Number(GM_getValue("esg_scrolltop",1)))
 {	
 	$("body").prepend("<div class=\"scroll-top form__submit-button\" style=\"cursor:pointer;position: fixed;bottom: 10px;right: 40px;padding:10px !important;size: 30px 30px;transform:rotate(-90deg);opacity:0.75\">></div>");
 	$(".scroll-top").hide();
@@ -549,6 +570,7 @@ if(GM_getValue("esg_scrolltop",1))
 		slast=$(window).scrollTop();
 	});
 }
+
 //SGE menu
 $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before("	\
 	<div class=\"nav__button-container\">		\
@@ -568,7 +590,7 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 					<p class=\"nav__row__summary__description\">Open options        \</p>		\
 				</div>		\
 				</a>		\
-				"+(ver.indexOf("[BETA]")>-1?"<a class=\"nav__row\" href=\"http://steamcommunity.com/groups/extendedsg/discussions/0/\">		\
+				"+(ver.indexOf("BETA")>-1?"<a class=\"nav__row\" href=\"http://steamcommunity.com/groups/extendedsg/discussions/0/\">		\
 				<i class=\"icon-red fa fa-fw fa-bug\"></i>		\
 				<div class=\"nav__row__summary\">		\
 					<p class=\"nav__row__summary__name\">Bug report</p>		\
@@ -576,7 +598,7 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 				</div>		\
 				</a>":"")+"	\
 				<a class=\"nav__row\" href=\"/account/profile/sync#esg_about\">		\
-				<i class=\"icon-yellow fa fa-fw fa-user\"></i>		\
+				<i class=\"icon-yellow fa fa-fw fa-info-circle\"></i>		\
 				<div class=\"nav__row__summary\">		\
 					<p class=\"nav__row__summary__name\">About</p>		\
 					<p class=\"nav__row__summary__description\">Extended Steamgifts "+ver+"        \</p>		\
@@ -584,6 +606,73 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 				</a>		\
 			</div>		\
 		</div>		\
-		<a class=\"nav__button nav__button--is-dropdown\" href=\"http://steamcommunity.com/groups/extendedsg/discussions\">ESG</a>		\
+		<a class=\"nav__button nav__button--is-dropdown\" href=\"http://www.steamgifts.com/discussion/qbPEr/extended-steamgifts-browser-addon\">ESG</a>		\
 		<div class=\"nav__button nav__button--is-dropdown-arrow\"><i class=\"fa fa-angle-down\"></i></div>		\
 	</div>");
+
+//Click event fix (part of original js)
+$(document).on('click','.trigger-popup', function(){
+        $("." + $(this).attr("data-popup")).bPopup({
+            opacity: .85,
+            fadeSpeed: 200,
+            followSpeed: 500,
+            modalColor: "#3c424d"
+        })
+});
+$(document).on('click','.giveaway__hide', function(){
+        $(".popup--hide-games input[name=game_id]").val($(this).attr("data-game-id")), $(".popup--hide-games .popup__heading__bold").text($(this).closest("h2").find(".giveaway__heading__name").text())
+    });
+$(document).on('click','nav .nav__button--is-dropdown-arrow', function(){
+        var e = $(this).hasClass("is-selected");
+        $("nav .nav__button").removeClass("is-selected"), $("nav .nav__relative-dropdown").addClass("is-hidden"), e || $(this).addClass("is-selected").siblings(".nav__relative-dropdown").removeClass("is-hidden"), t.stopPropagation()
+    });
+	
+//View description
+var dsc_created=false;
+$(".giveaway__hide").after("<i data-popup=\"popup--desc\" class=\"giveaway__icon trigger-popup fa fa-file-text-o\"></i>");
+$(document).on('click','.trigger-popup', function(){
+		var link=$(this).closest(".giveaway__row-outer-wrap").find(".giveaway__heading__name").attr("href");
+		if(!dsc_created)
+		{
+			$(".footer__outer-wrap").prepend('		\
+			<div style="width:50%; z-index: 9999; " class="popup popup--desc">		\
+				<i class="popup__icon fa fa-spinner fa-spin"></i>		\
+				<p class="popup__heading"><span class="popup__heading__bold">Loading ...</span></p>		\
+				<p class="popup__actions">		\
+					<span class="b-close">Close</span>		\
+				</p>		\
+			</div>');
+			dsc_created=true;
+		}
+		$(".popup__heading").html('<span class="popup__heading__bold">Loading ...</span>');
+		$(".popup__icon").addClass("fa-spinner").addClass("fa-spin").removeClass("fa-file-text-o");
+		var t=$(this);
+		var req=$.ajax({
+				url : link,
+				success : function (source) {
+					var desc=$(source).find(".page__description").html();
+					if(desc)
+					{
+						$(".popup__icon").removeClass("fa-spinner").removeClass("fa-spin").addClass("fa-file-text-o");
+						$(".popup__heading").html('<span class="popup__heading__bold">Description:</span><br><div class=\"popup--content\" style=\"word-break: break-all;height:80%;width:100%;border:1px solid black\">'+desc+"</div>");
+					} else {
+						$(".popup__icon").removeClass("fa-spinner").removeClass("fa-spin").addClass("fa-exclamation-circle");
+						$(".popup__heading").html('<span class="popup__heading__bold">No description found!</span><br>');
+					}
+				},
+				error : function () {
+					$(".popup__icon").removeClass("fa-spinner").removeClass("fa-spin").addClass("fa-exclamation-circle");
+					$(".popup__heading").html('<span class="popup__heading__bold">Connection failed!</span><br>');
+				}
+		});
+        $("." + $(this).attr("data-popup")).bPopup({
+            opacity: .85,
+            fadeSpeed: 200,
+            followSpeed: 500,
+			position:['auto','auto'],
+            modalColor: "#3c424d",
+			onClose: function() { 
+				req.abort();
+			}
+        })
+});
