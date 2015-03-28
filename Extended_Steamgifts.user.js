@@ -48,7 +48,7 @@ $("body").prepend("										\
 	margin: 0 -10px 0 -10px !important; 				\
 	padding: 0 8px 0 8px !important;   					\
 	min-width: 50px;									\
-	font-family: 'Arial,sans-serif';  					\
+	font-family: 'Arial',sans-serif;  					\
 	font-size: 11px;									\
 	line-height: 26px;									\
 }														\
