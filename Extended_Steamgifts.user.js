@@ -1,19 +1,23 @@
 // ==UserScript==
 // @name        Extended Steamgifts
-// @namespace	Nandee
+// @description	New features for Steamgifts.com
+// @author		Nandee
+// @namespace	esg
 // @include		*steamgifts.com*
-// @version		1.5.3[BETA]
+// @version		1.5.4[BETA]
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
+// @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
+// @icon        https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo.png
+// @homepage    http://steamcommunity.com/groups/extendedsg
 // @run-at		document-end
 // @grant		none
 // ==/UserScript==
-
 /*
 Changelog:
 1.5.2[BETA] (03-24-2015)
 - First release
-1.5.3[BETA] (03-26-2015)
+1.5.3[BETA] (03-25-2015)
 - Changed 'Miss' to 'Remove'
 - Fixed enter button on profile page
 - Blue line fixed behind the header
@@ -23,6 +27,15 @@ Changelog:
 - Added description button
 - Fixed problems with home page
 - Changed some icons
+1.5.4[BETA]
+- Fixed problems with description button
+- Fixed wishlist hightlight
+- Added support for SGv2 Dark Theme
+- Added hide entered giveaway feature (default disabled)
+- Redesigned Recommended sales (sidebar)
+- Redesigned Active discussions (sidebar)
+- Small bugfixes
+- Redesigned wishlist highlight
 */
 
 this.GM_getValue=function (key,def) {
@@ -31,6 +44,7 @@ this.GM_getValue=function (key,def) {
 this.GM_setValue=function (key,value) {
 	return localStorage[key]=value;
 };
+
 
 //Styles
 $("body").prepend("										\
@@ -68,19 +82,57 @@ $("body").prepend("										\
 {														\
 	cursor:pointer;										\
 }														\
-.wishlist-giveaways .giveaway__heading__name {   \
-    color: #719A47;   \
+.wishlist-giveaway .giveaway__heading__name {   \
+    color: #719A47 !important;   \
 }   \
-.wishlist-giveaways {   \
-    width: 100%+30px;   \
-    margin-right: -15px;   \
-    margin-left: -15px;   \
-    padding-right: 15px;   \
-    padding-left: 15px;   \
-    border: 1px solid #d2d6e0;   \
-    border-radius: 4px;   \
-    background-image: linear-gradient(rgb(250,255,250) 0,rgb(245,254,245) 100%);   \
+.wishlist-light .giveaway__row-inner-wrap {   \
+	background: rgba(230,245,230,1.0) !important;   \
+	-moz-box-shadow: 0 0 10px 10px rgba(240,255,240,1.0) !important;	\
+	-webkit-box-shadow: 0 0 10px 10px rgba(240,255,240,1.0) !important;	\
+    box-shadow: 0 0 10px 10px rgba(230,245,230,1.0) !important;	\
 }   \
+.wishlist-dark .giveaway__row-inner-wrap {   \
+	background:rgba(45,50,45,1.0)!important;   \
+	-moz-box-shadow: 0 0 10px 10px rgba(45,50,45,1.0) !important;	\
+	-webkit-box-shadow: 0 0 10px 10px rgba(45,50,45,1.0) !important;	\
+    box-shadow: 0 0 10px 10px rgba(45,50,45,1.0) !important;	\
+}   \
+.sidebar__navigation__item__discount 	\
+{	\
+	font-size:40px;	\
+	font-weight:bold;	\
+	width:100%;	\
+	text-align:center;	\
+}	\
+.sidebar__navigation__item__image 	\
+{	\
+	width:184px;	\
+	height:69px	\
+}	\
+.sidebar__navigation__item__oldprice	\
+{	\
+	text-decoration: line-through;	\
+}	\
+.sidebar__navigation__item__info	\
+{	\
+	width:116px;	\
+	text-align:center;	\
+	font-size: 15px;	\
+	height:69px;	\
+	margin-right:-2px;	\
+}	\
+.sidebar__navigation__itemz:hover .sidebar__navigation__item__underline{	\
+	border-bottom:2px solid transparent !important;	\
+}			\
+.sidebar__navigation__item__title	\
+{	\
+	font-weight:bold;	\
+	font-size: 15px;	\
+}	\
+.sidebar__navigation__itemz	\
+{	\
+	font-size: 13px;	\
+}	\
 </style>												\
 ");
 
@@ -93,6 +145,8 @@ var currentpage = Number($('.pagination__navigation').find('.is-selected').attr(
 var hash = $(location).attr('hash');
 var ver=GM_info.script.version;
 var username=$(".nav__avatar-outer-wrap").attr("href").replace("/user/","");
+var theme=$(".SGv2-Dark-button").find("span").text()=="Dark"?1:0
+
 //Funcs
 function getPos(str, m, i) {
 	return str.split(m, i).join(m).length;
@@ -168,6 +222,7 @@ function display_options()
 	addToOptions("Fixed header","esg_fixedheader",1);
 	addToOptions("Hightlight wishlist","esg_wishlist",1);
 	addToOptions("Scroll to top button","esg_scrolltop",1);
+	addToOptions("Hide entered giveaways","esg_hideentered",0);
 	page.html("				\
 		<div class=\"page__heading\"> \
         <div class=\"page__heading__breadcrumbs\">   \
@@ -242,12 +297,11 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 	$(".table__rows:last").find(".table__row-outer-wrap").each(function () {
 
 		var img = $(this).find(".global__image-inner-wrap").css('background-image');
-		if(img)
-		img = img.replace('url(','').replace(')','').replace('"','').replace('"','');
+		if(img)	img = img.replace('url(','').replace(')','').replace('"','').replace('"','');
 		var site=$(this).find(".table__column__secondary-link:last").text();
 		var siteimg="";
 		var percent=$(this).find(".table__column--width-small:first").find("span").text();
-		//var wishlist=$(this).find(".fa-heart").length>0?true:false;
+		var wishlist=$(this).find(".fa-heart").length>0?true:false;
 
 		var del=$(this).find("del");
 		var before=$(del).text();
@@ -255,8 +309,7 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 		$(del).remove();
 		var after=$(p).text();
 		var url=$(this).find("a:first").attr("href");
-		var appid=-1
-		if(img)  appid=Number(img.slice(getPos(img,"/",5)+1,getPos(img,"/",6)));
+		var title=$(this).find(".table__column__heading").text();
 		if(site=="Steam")
 		{
 			siteimg="http://steamcommunity.com//favicon.ico";
@@ -269,14 +322,34 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 		{
 			siteimg="http://www.greenmangaming.com/static/favicon.ico";
 		}
-		c+="<a target=\"_blank\" href=\""+url+"\">\
-		<div class=\"sales__line\"><img align=\"top\" class=\"sale__img\" style=\"display:inline\" src=\""+img+"\">\
-		<img style=\"display:inline;margin-left:-18px;\" src=\""+siteimg+"\">	\
-		<div style=\"margin:-73px 0 5px 190px;height:69px;text-align:center\">	\
-		<a style=\"float:right;margin-right:5px\" href=\"http://store.steampowered.com/app/"+appid+"\" target=\"_blank\"><i title=\"Open via Steam\" class=\"fa fa-info\"></i></a>\
-		<div style='font-size:40px;font-weight:bold'>"+percent+"</div>	\
-		<div style='height:20px'><s>"+before+"</s> -<i class=\"fa fa-caret-right\"></i> "+after+"</div>			\
-		</div></div></a>";
+		var currency="",x=after.slice(-3)
+		after=after.replace(" "+x,"");
+		if(x=="GBP")
+			currency="£";
+		else if(x=="USD")
+			currency="$";
+		else if(x=="EUR")
+			currency="€";
+		else
+			currency=x;
+		//if(Math.random()<0.5)img="";
+		c+='<li class="sidebar__navigation__itemz" title="'+title+'">	\
+		<a class="sidebar__navigation__item__link" href="'+url+'">	\
+			<span class="global__image-outer-wrap global__image-outer-wrap--game-medium '+(!img?'global__image-outer-wrap--missing-image':'')+'">	\
+				'+(img?'<div class="global__image-inner-wrap" style="background-image:url('+img+');"><img src="'+siteimg+'">':'')+'\
+				'+(!img?'<i class="fa fa-picture-o"></i>':'</div>')+'	\
+			</span>	\
+		<div class="sidebar__navigation__item__info sidebar__navigation__item__underline">	\
+			<div class="sidebar__navigation__item__discount">'+percent+'</div>	\
+			<i class="sidebar__navigation__item__oldprice">'+before+currency+'</i> -<i class="fa fa-caret-right"></i><i class="sidebar__navigation__item__newprice">'+after+currency+'</i>\
+		</div>	\
+		</a>	\
+		</li>';
+		/*
+		
+						'+(wishlist?'<span class="fa fa-heart icon-red" style="margin-left:195px;"></span>':'<span style="margin-left:195px;"></span>')+'	\
+				<img style="display:block;margin:40px 0 0 168px;" src="'+siteimg+'">	\
+		*/
 	});
 	var c2="";
 	$(".table__rows:first").find(".table__row-outer-wrap").each(function () {
@@ -285,21 +358,49 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 		var title=$(this).find(".table__column__heading").text();
 		var url=$(this).find(".table__column__heading").attr("href");
 		var comments=$(this).find(".text-center").text();
-		var info=$(this).find(".table__column--width-fill").find("p").html();
-		c2+="<div style=\"border-bottom:1px solid lightgray;padding-bottom:5px;margin-bottom:-5px\">	\
-		<img style=\"width:40px;height:40px;margin-right:5px;border:5px solid white;border-radius:5px;display:inline\" src=\""+img+"\">	\
-		<div style=\"max-width:255px;display:inline-block\">	\
-		<a class=\"table__column__heading\" href='"+url+"'>"+title+"</a><br>	\
-		<i style=\"color:lightgray;\" class=\"fa fa-comment\"></i> "+comments+" comment"+(Number(comments.replace(",",""))>1?"s":"")+"	\
-		<br>"+info+"</div></div><br>";
+		var info="x";//$(this).find(".table__column--width-fill").find("p").html();
+		var topic=$(this).find(".table__column__secondary-link").eq(0).text();
+		var owner=$(this).find(".table__column__secondary-link").eq(1).text();
+		var created=$(this).find(".table__column__secondary-link").eq(0).closest("p").find("span").text();
+		if(title.length > 30) title = title.substring(0,30)+"...";
+		
+		c2+='<li class="sidebar__navigation__itemz">	\
+				<a class="sidebar__navigation__item__link" href="'+url+'">	\
+					<i class="global__image-outer-wrap global__image-outer-wrap--avatar-small">	\
+					<div class="global__image-inner-wrap" style="background-image:url('+img+');"></div></i>	\
+					</div>	\
+					<div class="sidebar__navigation__item__underline">	\
+					<div class="sidebar__navigation__item__title">'+title+'</div>	\
+					<i class="fa fa-comment" style="color:white;text-shadow:0px 1px #AAB5C6, 0px -1px #AAB5C6, 1px 0px #AAB5C6, -1px 0px #AAB5C6"></i> '+comments+' Comments<br>	\
+					<span class="sidebar__navigation__item__name">'+topic+'</span> - '+created+' by <span class="sidebar__navigation__item__name">'+owner+'</span>	\
+					</div>	\
+				</a>	\
+			</li>';
 	});
+	
 	var source=$(".table:last").html();
-	$(".sidebar__navigation:last").after("					\
-	<h3 class='sidebar__heading'>Recommended Sales</h3><div class='table' style='width:100%'>"+c+"</div>		\
-	<a style=\"padding:5px;font-weight:bold;float:right\" class=\"page__heading__button page__heading__button--green\" href=\"/sales\">More discounts<i class=\"fa fa-angle-right\"></i></a>	\
-	<h3 class='sidebar__heading' style='margin-top:35px'>Active Discussions</h3><div class='table' style='width:100%'>"+c2+"</div>		\
-	<a style=\"padding:5px;font-weight:bold;float:right\" class=\"page__heading__button page__heading__button--green\" href=\"/discussions\">More topics<i class=\"fa fa-angle-right\"></i></a>	\
-	")
+	$(".sidebar__navigation:last").after('					\
+	<h3 class="sidebar__heading">Recommended sales</h3>	\
+	<ul class="sidebar__navigation">	\
+	'+c+'\
+	<li class="sidebar__navigation__item">		\
+		<a class="sidebar__navigation__item__link" href="/sales">		\
+		<div class="sidebar__navigation__item__name">More discounts</div>		\
+		<div class="sidebar__navigation__item__underline"></div>		\
+		</a>	\
+	</li>		\
+	</ul>	\
+	<h3 class="sidebar__heading">Active Discussions</h3>	\
+	<ul class="sidebar__navigation">	\
+	'+c2+'\
+	<li class="sidebar__navigation__item">		\
+		<a class="sidebar__navigation__item__link" href="/discussions">		\
+		<div class="sidebar__navigation__item__name">More discussions</div>		\
+		<div class="sidebar__navigation__item__underline"></div>		\
+		</a>	\
+	</li>		\
+	</ul>	\
+	')
 }
 
 //Auto scroll
@@ -454,8 +555,19 @@ $.fn.format_ga = function () {
 	//Highlight wishlisted
 	if(Number(GM_getValue("esg_wishlist",1))&&loggedin&&$.inArray(url,wishlist)!=-1)
 	{
-        $(ga).addClass("wishlist-giveaways");
+        $(ga).addClass("wishlist-giveaway");
+		if(theme)	$(ga).addClass("wishlist-dark");
+		else		$(ga).addClass("wishlist-light");
 		$(ga).find(".giveaway__heading__name").prepend("[WISHLIST] ");
+	}
+	
+	//Description
+	$(ga).find(".giveaway__hide").after("<i class=\"giveaway__icon fa fa-file-text-o open--desc\"></i>");
+	
+	//Hide entered
+	if(Number(GM_getValue("esg_hideentered",0))&&entered)
+	{
+		$(ga).addClass("is-hidden");
 	}
 });
 };
@@ -475,6 +587,10 @@ $(document).on( 'click', '.sidebar__entry-insert, .sidebar__entry-delete', funct
             data: t.closest("form").serialize(),
             success: function(e) {
                 t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden"), "success" === e.type ? t.hasClass("sidebar__entry-insert") ? t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden") : t.hasClass("sidebar__entry-delete") && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden") : "error" === e.type && t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== !1 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg ), "undefined" != typeof e.entry_count && e.entry_count !== !1 && $(".live__entry-count").text(e.entry_count), $(".nav__points").text(e.points)
+				if(Number(GM_getValue("esg_hideentered",0))&&"success" === e.type&&!t.closest(".sidebar__entry-delete").hasClass("is-hidden"))
+				{
+					$(t).closest(".giveaway__row-outer-wrap").hide("blind",{},500);
+				}
 				update_gas(e.points);
 			}
         });
@@ -540,35 +656,60 @@ if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
 			{
 				wishlist.push($(this).attr("href"));
 				$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").prepend("[WISHLIST] ")
-				$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").closest(".giveaway__row-outer-wrap").addClass("wishlist-giveaways");
+				var outer=$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").closest(".giveaway__row-outer-wrap");
+				$(outer).addClass("wishlist-giveaway")
+				if(theme)	$(outer).addClass("wishlist-dark");
+				else		$(outer).addClass("wishlist-light");
 				wlcount++;
 		   }
 		});
-	}});
+		var pnum=$(source).find("span:contains('Last')").closest('a').attr("data-page-number");
+		for(var i=2;i<=Number(pnum);i++)
+		{
+			$.ajax({
+				url: "http://www.steamgifts.com/giveaways/search?type=wishlist&page="+i,
+				success: function(source) {    
+					$(source).find(".giveaway__heading__name").each(function(index) {
+						if($(this).closest(".pinned-giveaways").length==0)
+						{
+							wishlist.push($(this).attr("href"));
+							$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").prepend("[WISHLIST] ")
+							var outer=$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").closest(".giveaway__row-outer-wrap");
+							$(outer).addClass("wishlist-giveaway")
+							if(theme)	$(outer).addClass("wishlist-dark");
+							else		$(outer).addClass("wishlist-light");
+							wlcount++;
+						}
+					});
+				}});
+		}
+		}		
+	});
 }
 
 //Scroll to top
 if(Number(GM_getValue("esg_scrolltop",1)))
 {	
-	$("body").prepend("<div class=\"scroll-top form__submit-button\" style=\"cursor:pointer;position: fixed;bottom: 10px;right: 40px;padding:10px !important;size: 30px 30px;transform:rotate(-90deg);opacity:0.75\">></div>");
+	$("body").prepend("<div class=\"scroll-top form__submit-button\" style=\"cursor:pointer;position: fixed;bottom: 10px;right: 40px;padding:10px !important;size: 30px 30px;transform:rotate(-90deg);opacity:0.75;z-index:50\">></div>");
 	$(".scroll-top").hide();
 	$(".scroll-top").click(function () {
 		$('html, body').animate({ scrollTop: 0 }, 'fast');	
 	});
-	var slast=0;
+	var state=0;
 	$(window).scroll(function () {
 		var st=$(window).scrollTop();
-		var x=$(window).height();
-		if(st>=x&&slast<x)	
+		if(st>500&&!state)	
 		{		
 			$(".scroll-top").fadeIn("fast");
+			state=1;
 		}
-		else if(st<x&&slast<=x)
+		else if(st<=500&&state)
 		{
 			$(".scroll-top").fadeOut("fast");
+			state=0;
 		}
-		slast=$(window).scrollTop();
 	});
+
 }
 
 //SGE menu
@@ -584,13 +725,13 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 				</div>		\
 				</a>		\
 				<a class=\"nav__row\" href=\"/account/profile/sync#esg_options\">		\
-				<i class=\"icon-blue fa fa-fw fa-cog\"></i>		\
+				<i class=\"icon-grey fa fa-fw fa-cog\"></i>		\
 				<div class=\"nav__row__summary\">		\
 					<p class=\"nav__row__summary__name\">Options</p>		\
 					<p class=\"nav__row__summary__description\">Open options        \</p>		\
 				</div>		\
 				</a>		\
-				"+(ver.indexOf("BETA")>-1?"<a class=\"nav__row\" href=\"http://steamcommunity.com/groups/extendedsg/discussions/0/\">		\
+				"+(ver.indexOf("BETA")>-1?"<a class=\"nav__row\" target=\"blank\" href=\"http://steamcommunity.com/groups/extendedsg/discussions/0/\">		\
 				<i class=\"icon-red fa fa-fw fa-bug\"></i>		\
 				<div class=\"nav__row__summary\">		\
 					<p class=\"nav__row__summary__name\">Bug report</p>		\
@@ -598,7 +739,7 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 				</div>		\
 				</a>":"")+"	\
 				<a class=\"nav__row\" href=\"/account/profile/sync#esg_about\">		\
-				<i class=\"icon-yellow fa fa-fw fa-info-circle\"></i>		\
+				<i class=\"fa fa-fw fa-info-circle\" style=\"color:lightblue\"></i>		\
 				<div class=\"nav__row__summary\">		\
 					<p class=\"nav__row__summary__name\">About</p>		\
 					<p class=\"nav__row__summary__description\">Extended Steamgifts "+ver+"        \</p>		\
@@ -627,52 +768,99 @@ $(document).on('click','nav .nav__button--is-dropdown-arrow', function(){
         $("nav .nav__button").removeClass("is-selected"), $("nav .nav__relative-dropdown").addClass("is-hidden"), e || $(this).addClass("is-selected").siblings(".nav__relative-dropdown").removeClass("is-hidden"), t.stopPropagation()
     });
 	
-//View description
+//View description button
 var dsc_created=false;
-$(".giveaway__hide").after("<i data-popup=\"popup--desc\" class=\"giveaway__icon trigger-popup fa fa-file-text-o\"></i>");
-$(document).on('click','.trigger-popup', function(){
-		var link=$(this).closest(".giveaway__row-outer-wrap").find(".giveaway__heading__name").attr("href");
-		if(!dsc_created)
-		{
-			$(".footer__outer-wrap").prepend('		\
-			<div style="width:50%; z-index: 9999; " class="popup popup--desc">		\
-				<i class="popup__icon fa fa-spinner fa-spin"></i>		\
-				<p class="popup__heading"><span class="popup__heading__bold">Loading ...</span></p>		\
-				<p class="popup__actions">		\
-					<span class="b-close">Close</span>		\
-				</p>		\
-			</div>');
-			dsc_created=true;
-		}
-		$(".popup__heading").html('<span class="popup__heading__bold">Loading ...</span>');
-		$(".popup__icon").addClass("fa-spinner").addClass("fa-spin").removeClass("fa-file-text-o");
+$(".footer__outer-wrap").prepend('		\
+	<div style="z-index: 9999" class="popup__desc-loading popup">		\
+		<i class="popup__icon fa fa-spinner fa-spin"></i>		\
+		<p class="popup__heading"><span class="popup__heading__bold">Loading ...</span></p>		\
+		<p class="popup__actions">		\
+			<span class="b-close">Close</span>		\
+		</p>		\
+	</div>		\
+	<div style="z-index: 9999; max-width:1000px" class="popup__desc-display popup">		\
+		<i class="popup__icon fa fa-file-text-o"></i>		\
+		<p class="popup__heading"></p>		\
+		<p class="popup__actions">		\
+			<span class="b-close">Close</span>		\
+		</p>		\
+	</div>			\
+	<div style="z-index: 9999; " class="popup__desc-error popup">		\
+		<i class="popup__icon fa fa-exclamation-circle"></i>		\
+		<p class="popup__heading"><span class="popup__heading__bold">No description found!</span></p>		\
+		<p class="popup__actions">		\
+			<span class="b-close">Close</span>		\
+		</p>		\
+	</div>');
+$(document).on('click','.open--desc', function(){
 		var t=$(this);
+		var link=$(t).closest(".giveaway__row-outer-wrap").find(".giveaway__heading__name").attr("href");
+		$(".popup__desc-loading").bPopup({
+			opacity: .85,
+			fadeSpeed: 200,
+			followSpeed: 500,
+			modalColor: "#3c424d",
+			onClose: function() { 
+				req.abort();
+			}
+		});
 		var req=$.ajax({
 				url : link,
 				success : function (source) {
 					var desc=$(source).find(".page__description").html();
 					if(desc)
 					{
-						$(".popup__icon").removeClass("fa-spinner").removeClass("fa-spin").addClass("fa-file-text-o");
-						$(".popup__heading").html('<span class="popup__heading__bold">Description:</span><br><div class=\"popup--content\" style=\"word-break: break-all;height:80%;width:100%;border:1px solid black\">'+desc+"</div>");
+						$(".popup__desc-display").find(".popup__heading").html('<span class="popup__heading__bold">Description:</span><br><div class=\"popup--content page__description\" style=\"word-break: break-all;text-align:left;\">'+desc+"</div>");
+						$(".popup__desc-loading").find(".b-close").trigger("click");
+						$(".popup__desc-display").bPopup({
+							opacity: .85,
+							fadeSpeed: 200,
+							followSpeed: 500,
+							modalColor: "#3c424d",
+							onClose: function() { 
+								req.abort();
+							}
+						});
 					} else {
-						$(".popup__icon").removeClass("fa-spinner").removeClass("fa-spin").addClass("fa-exclamation-circle");
-						$(".popup__heading").html('<span class="popup__heading__bold">No description found!</span><br>');
+						$(".popup__desc-loading").find(".b-close").trigger("click");
+						$(".popup__desc-error").find(".popup__heading__bold").text("No description found!");
+						$(".popup__desc-error").bPopup({
+							opacity: .85,
+							fadeSpeed: 200,
+							followSpeed: 500,
+							modalColor: "#3c424d",
+							onClose: function() { 
+								req.abort();
+							}
+						});
 					}
 				},
 				error : function () {
-					$(".popup__icon").removeClass("fa-spinner").removeClass("fa-spin").addClass("fa-exclamation-circle");
-					$(".popup__heading").html('<span class="popup__heading__bold">Connection failed!</span><br>');
+					$(".popup__desc-loading").find(".b-close").trigger("click");
+					$(".popup__desc-error").find(".popup__heading__bold").text("Connection failed!");
+					$(".popup__desc-error").bPopup({
+							opacity: .85,
+							fadeSpeed: 200,
+							followSpeed: 500,
+							modalColor: "#3c424d",
+							onClose: function() { 
+								req.abort();
+							}
+						});
 				}
 		});
-        $("." + $(this).attr("data-popup")).bPopup({
-            opacity: .85,
-            fadeSpeed: 200,
-            followSpeed: 500,
-			position:['auto','auto'],
-            modalColor: "#3c424d",
-			onClose: function() { 
-				req.abort();
-			}
-        })
+});
+
+//SGv2 Dark support
+$(document).on("click",".themetoggle",function() {
+	if($(this).find("span").text()=="Dark")
+	{
+		theme=1;
+		$(".wishlist-light").addClass("wishlist-dark").removeClass("wishlist-light");
+	}
+	else
+	{
+		theme=0;
+		$(".wishlist-dark").addClass("wishlist-light").removeClass("wishlist-dark");
+	}
 });
