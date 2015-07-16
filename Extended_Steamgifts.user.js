@@ -4,11 +4,11 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		1.5.4[BETA]
+// @version		1.5.5
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
-// @icon        https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo.png
+// @icon        http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/a2/a24b43bb37dd0e732f97ba94708f0f006409ddb1_full.jpg
 // @homepage    http://steamcommunity.com/groups/extendedsg
 // @run-at		document-end
 // @grant		none
@@ -27,15 +27,24 @@ Changelog:
 - Added description button
 - Fixed problems with home page
 - Changed some icons
-1.5.4[BETA]
+1.5.4[BETA] (03-28-2015)
 - Fixed problems with description button
 - Fixed wishlist hightlight
 - Added support for SGv2 Dark Theme
-- Added hide entered giveaway feature (default disabled)
+- Added hide entered giveaway feaure (default disabled)
 - Redesigned Recommended sales (sidebar)
 - Redesigned Active discussions (sidebar)
 - Small bugfixes
 - Redesigned wishlist highlight
+1.5.5 (07-16-2015)
+- Fixed font problem
+- Fixed sidebar
+- Fixed endless scrolling
+- Fixed Wishlist - Featured giveaway problem
+- Fixed chance problem with more than 1k copies giveaways
+- Removed point refresh feature
+- Removed recommended sales feature
+- Changed icon
 */
 
 this.GM_getValue=function (key,def) {
@@ -62,7 +71,7 @@ $("body").prepend("										\
 	margin: 0 -10px 0 -10px !important; 				\
 	padding: 0 8px 0 8px !important;   					\
 	min-width: 50px;									\
-	font-family: 'Arial,sans-serif';  					\
+	font-family: 'Arial',sans-serif;  					\
 	font-size: 11px;									\
 	line-height: 26px;									\
 }														\
@@ -291,6 +300,7 @@ function display_about()
 }
 
 //Recommended Sales & Active Discussions
+
 if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1)))
 {
 	var c="";
@@ -352,7 +362,8 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 		*/
 	});
 	var c2="";
-	$(".table__rows:first").find(".table__row-outer-wrap").each(function () {
+	$(".page__heading__breadcrumbs:contains('Active Discussions')").closest(".page__heading").next()
+	.find(".table__rows").find(".table__row-outer-wrap").each(function () {
 		var img = $(this).find(".global__image-inner-wrap").css('background-image');
 		img = img.replace('url(','').replace(')','').replace('"','').replace('"','');
 		var title=$(this).find(".table__column__heading").text();
@@ -377,8 +388,8 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 				</a>	\
 			</li>';
 	});
-	
-	var source=$(".table:last").html();
+
+	/*
 	$(".sidebar__navigation:last").after('					\
 	<h3 class="sidebar__heading">Recommended sales</h3>	\
 	<ul class="sidebar__navigation">	\
@@ -389,18 +400,23 @@ if ((path == '/' || path=="/giveaways/")&& Number(GM_getValue("esg_autoscroll",1
 		<div class="sidebar__navigation__item__underline"></div>		\
 		</a>	\
 	</li>		\
-	</ul>	\
-	<h3 class="sidebar__heading">Active Discussions</h3>	\
-	<ul class="sidebar__navigation">	\
-	'+c2+'\
-	<li class="sidebar__navigation__item">		\
-		<a class="sidebar__navigation__item__link" href="/discussions">		\
-		<div class="sidebar__navigation__item__name">More discussions</div>		\
-		<div class="sidebar__navigation__item__underline"></div>		\
-		</a>	\
-	</li>		\
-	</ul>	\
-	')
+	</ul>	');
+	*/
+	if($(".page__heading__breadcrumbs:contains('Active Discussions')").length)
+	{
+		$(".sidebar__navigation:last").after('					\
+		<h3 class="sidebar__heading">Active Discussions</h3>	\
+		<ul class="sidebar__navigation">	\
+		'+c2+'\
+		<li class="sidebar__navigation__item">		\
+			<a class="sidebar__navigation__item__link" href="/discussions">		\
+			<div class="sidebar__navigation__item__name">More discussions</div>		\
+			<div class="sidebar__navigation__item__underline"></div>		\
+			</a>	\
+		</li>		\
+		</ul>	\
+		')
+	}
 }
 
 //Auto scroll
@@ -422,7 +438,7 @@ if ((path == '/' || path=="/giveaways/") && Number(GM_getValue("esg_autoscroll",
 					$('.refresh__page:last').click(refresh_page);
 					var htm = $(source).find('.widget-container').children('div:nth-child(2)');
 					$($(htm).find('.giveaway__row-outer-wrap').get().reverse()).each(function (index) {
-						if ($(this).parent().attr('class') != 'pinned-giveaways') {
+						if ($(this).closest(".pinned-giveaways").length==0&&$(this).closest(".pinned-giveaways__outer-wrap").length==0) {
 							$(this).wrap('<div class="giveaway__row-outer-wrap"></div>');
 							$('.page__heading:last').after($(this).parent().format_ga().html());
 						}
@@ -458,7 +474,7 @@ function refresh_page() {
 			$(refreshButton).parent().nextUntil('.page__heading').remove();
 			var htm = $(source).find('.widget-container').children('div:nth-child(2)');
 			$($(htm).find('.giveaway__row-outer-wrap').get().reverse()).each(function (index) {
-				if ($(this).parent().attr('class') != 'pinned-giveaways') {
+				if ($(this).closest(".pinned-giveaways").length==0&&$(this).closest(".pinned-giveaways__outer-wrap").length==0) {
 					$(this).wrap('<div class="giveaway__row-outer-wrap"></div>');
 					$(refreshButton).parent().after($(this).parent().format_ga().html());
 				}
@@ -499,7 +515,7 @@ $.fn.format_ga = function () {
 	var copies = 1,
 	e = 0;
 	if (c.indexOf('Copies') >  - 1) {
-		copies = Number(c.substring(1, getPos(c, ' ', 1)));
+		copies = Number(c.substring(1, getPos(c, ' ', 1)).replace("(","").replace("(",""));
 	}
 	
 	var entered = $(ga).find('.giveaway__row-inner-wrap').hasClass('is-faded');
@@ -630,7 +646,7 @@ function update_gas(p)
 }
 
 //Refresh points every sec
-setInterval(function () {
+/*setInterval(function () {
 	$.ajax({
 		url: "/ajax.php",
 		type: "POST",
@@ -645,6 +661,7 @@ setInterval(function () {
 		}
 	});
 },1000);
+*/
 //Hightlight wishlist
 if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
 {
@@ -652,7 +669,7 @@ if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
 	url: "http://www.steamgifts.com/giveaways/search?type=wishlist",
 	success: function(source) {    
 		$(source).find(".giveaway__heading__name").each(function(index) {
-			if($(this).closest(".pinned-giveaways").length==0)
+			if($(this).closest(".pinned-giveaways").length==0&&$(this).closest(".pinned-giveaways__outer-wrap").length==0)
 			{
 				wishlist.push($(this).attr("href"));
 				$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").prepend("[WISHLIST] ")
@@ -670,7 +687,7 @@ if(Number(GM_getValue("esg_wishlist",1))&&loggedin)
 				url: "http://www.steamgifts.com/giveaways/search?type=wishlist&page="+i,
 				success: function(source) {    
 					$(source).find(".giveaway__heading__name").each(function(index) {
-						if($(this).closest(".pinned-giveaways").length==0)
+						if($(this).closest(".pinned-giveaways").length==0&&$(this).closest(".pinned-giveaways__outer-wrap").length==0)
 						{
 							wishlist.push($(this).attr("href"));
 							$("a[href='"+wishlist[wlcount]+"'][class=giveaway__heading__name]").prepend("[WISHLIST] ")
