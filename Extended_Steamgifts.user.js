@@ -149,7 +149,7 @@ $("body").prepend("										\
 var path = window.location.pathname;
 var xsrf = $('input[type=hidden][name=xsrf_token]').val();
 var loggedin = ($('.nav__sits').length > 0) ? false : true;
-var totalpage = Number($('.pagination__navigation').find('a:last').attr('data-page-number'));
+var totalpage = '?';
 var currentpage = Number($('.pagination__navigation').find('.is-selected').attr('data-page-number'));
 var hash = $(location).attr('hash');
 var ver=GM_info.script.version;
@@ -431,6 +431,7 @@ if ((path == '/' || path=="/giveaways/") && Number(GM_getValue("esg_autoscroll",
 		if (!loading && $(window).scrollTop() + $(window).height() > $(document).height() - 1000) {
 			$('.giveaway__row-outer-wrap:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways page ' + (page + 1) + '/' + totalpage + '</a></div><div class="refresh__page" page="' + (page + 1) + '"><i class="fa fa-refresh fa-spin"></i></div></div>');
 			loading = true;
+			lastpage = false;
 			ms = Date.now();
 			$.ajax({
 				url : 'http://www.steamgifts.com/giveaways/search?page=' + (page + 1),
@@ -445,10 +446,13 @@ if ((path == '/' || path=="/giveaways/") && Number(GM_getValue("esg_autoscroll",
 					});
 					var lt = (Date.now() - ms) / 1000;
 					$('.page__heading__breadcrumbs:last').find('a').append('<span class=\'is-faded\' style=\'font-size:10px;margin-left:10px\'>' + lt + ' sec</span>');
+					lastpage = (source.indexOf('<span>Next</span>') == -1)
+					if (lastpage)
+						totalpage = page;
 					page++;
 				},
 				complete : function () {
-					if (page < totalpage) {
+					if (!lastpage) {
 						loading = false;
 					}
 					$('.refresh__page:last').addClass('giveaway__column--group');
