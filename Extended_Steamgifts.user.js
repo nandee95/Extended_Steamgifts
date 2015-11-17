@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.0
+// @version		2.0.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -45,7 +45,7 @@ Changelog:
 - Removed point refresh feature
 - Removed recommended sales feature
 - Changed icon
-2.0
+2.0 (11-15-2015)
 - Giveaway filter
 - Optimized code(removed unneded parts)
 - Community Voted sidebar
@@ -57,6 +57,11 @@ Changelog:
 - Re-enabled bug reporting button
 - Added Steamgifts dicussion's url & GitHub url to the menu
 - Re-added refreshing points (every 60 seconds, optional, turned off by default)
+2.0.1 (11-17-2015)
+- Fixed point updater in options
+- Colored menu icons
+- Fixed auto scrolling in table based pages
+- Added auto scrolling to comment based pages
  */
 
 this.GM_getValue=function (key,def) {
@@ -138,7 +143,6 @@ var currentpage = Number($('.pagination__navigation').find('.is-selected').attr(
 var hash = $(location).attr('hash');
 var ver = GM_info.script.version;
 var username = $(".nav__avatar-outer-wrap").attr("href").replace("/user/", "");
-var theme = $(".SGv2-Dark-button").find("span").text() == "Dark" ? 1 : 0;
 var pagename = $('.page__heading__breadcrumbs:first').text();
 var pagination_url = "http://"+window.location.hostname+$(".pagination__navigation").find("a:last").attr("href");
 
@@ -233,7 +237,7 @@ function display_options() {
 	addToOptions("Endless scrolling", "esg_autoscroll", 1);
 	addToOptions("Display chances", "esg_chances", 1);
 	addToOptions("Fixed header", "esg_fixedheader", 1);
-	addToOptions("Refresh points (60sec)", "esg_refresh", 1);
+	addToOptions("Refresh points (60sec)", "esg_refresh", 0);
 	addToOptions("Scroll to top button", "esg_scrolltop", 1);
 	addToOptions("Hide entered giveaways", "esg_hideentered", 0);
 	page.html("				\
@@ -394,9 +398,17 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 	$('.widget-container--margin-top').remove();
 	$('.giveaway__row-outer-wrap:last').parent().after('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/loading.gif" class="page-loading"></div>');
 	$('.table:last').after('<br><img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/loading.gif" class="page-loading"></div>');
+	$('.comments:last').after('<br><img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/loading.gif" class="page-loading"></div>');
 	$('page-loading').hide();
 	var page = currentpage;
 	$('.page__heading__breadcrumbs:first').append('<i class="fa fa-angle-right"></i><a href="' + window.location.href + '"> Page ' + page + '</a>')
+	
+	if($('.comment--submit').length>0)
+	{
+		$(".page__heading:contains('Comment')").after($('.comment--submit').html())
+		
+		$('.comment--submit:last').hide()
+	}
 	$(window).scroll(function () {
 		if (!loading && $(window).scrollTop() + $(window).height() > $(document).height() - 1000 && !lastpage) {
 			loading = true;
@@ -410,8 +422,12 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 							$('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>')
 							$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
 						} else if ($('.table').length > 0) {
-                            var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
-							$('.table').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>')
+              var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
+							$('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>')
+						}
+						else if ($('.comments').length > 0) {
+							 $('.comments:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">Comments </a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="comments">' + $(source).find('.comments:last').html() + '</div>')
+						
 						}
 						page++;
 					},
@@ -689,7 +705,7 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	</div>		\
 	</a>		\
 	<a class=\"nav__row\" href=\"http://www.steamgifts.com/discussions/search?q=extended+steamgifts\">		\
-	<i class=\"icon-grey fa fa-fw fa-comment\"></i>		\
+	<i class=\"icon-blue fa fa-fw fa-comment\"></i>		\
 	<div class=\"nav__row__summary\">		\
 	<p class=\"nav__row__summary__name\">Dicussion</p>		\
 	<p class=\"nav__row__summary__description\">Steamgifts dicussion</p>		\
@@ -709,8 +725,8 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	<p class=\"nav__row__summary__description\">Report bugs here!        \</p>		\
 	</div>		\
 	</a>	\
-	<a class=\"nav__row\" href=\"https://github.com/nandee95/Extended_Steamgifts\">		\
-	<i class=\"icon-grey fa fa-fw fa-github\"></i>		\
+	<a class=\"nav__row\" target=\"blank\" href=\"https://github.com/nandee95/Extended_Steamgifts\">		\
+	<i class=\"icon-green fa fa-fw fa-github\"></i>		\
 	<div class=\"nav__row__summary\">		\
 	<p class=\"nav__row__summary__name\">Source Code</p>		\
 	<p class=\"nav__row__summary__description\">GitHub</p>		\
