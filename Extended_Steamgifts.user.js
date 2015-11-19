@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.0.1
+// @version		2.0.2
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -62,6 +62,16 @@ Changelog:
 - Colored menu icons
 - Fixed auto scrolling in table based pages
 - Added auto scrolling to comment based pages
+2.0.2 (11-19-2015)
+- fixed multiple pages problem
+- fixed comment reply
+- [FREE] giveaway mark
+
+TODO:
+- Entered section autoscroll
+- Comment positon
+- Comment reply
+
  */
 
 this.GM_getValue=function (key,def) {
@@ -138,7 +148,7 @@ border-bottom:2px solid transparent !important;	\
 var path = window.location.pathname;
 var xsrf = $('input[type=hidden][name=xsrf_token]').val();
 var loggedin = ($('.nav__sits').length > 0) ? false : true;
-var lastpage=false;
+var lastpage=($(".pagination__navigation:contains('Next')").length==0);
 var currentpage = Number($('.pagination__navigation').find('.is-selected').attr('data-page-number'));
 var hash = $(location).attr('hash');
 var ver = GM_info.script.version;
@@ -402,13 +412,13 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 	$('page-loading').hide();
 	var page = currentpage;
 	$('.page__heading__breadcrumbs:first').append('<i class="fa fa-angle-right"></i><a href="' + window.location.href + '"> Page ' + page + '</a>')
-	
 	if($('.comment--submit').length>0)
 	{
-		$(".page__heading:contains('Comment')").after($('.comment--submit').html())
+		$(".page__heading:contains('Comment')").after('<div class="comment--submit">'+$('.comment--submit').html()+"</div>")
 		
-		$('.comment--submit:last').hide()
+		$('.comment--submit:last').remove()
 	}
+
 	$(window).scroll(function () {
 		if (!loading && $(window).scrollTop() + $(window).height() > $(document).height() - 1000 && !lastpage) {
 			loading = true;
@@ -422,10 +432,14 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 							$('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>')
 							$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
 						} else if ($('.table').length > 0) {
+							
               var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
+						
 							$('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>')
 						}
 						else if ($('.comments').length > 0) {
+							
+              var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
 							 $('.comments:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">Comments </a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="comments">' + $(source).find('.comments:last').html() + '</div>')
 						
 						}
@@ -578,6 +592,9 @@ $.fn.format_ga = function () {
 		//Mark new giveaways
 		if (Number(GM_getValue("esg_h_new", 1)) && newga) {
 			$(ga).find(".giveaway__heading__name").prepend('<font color="#BFBF00">[NEW]</font> ');
+		}
+		if (Number(GM_getValue("esg_h_new", 1)) && req==0) {
+			$(ga).find(".giveaway__heading__name").prepend('<font color="#00BFBF">[FREE]</font> ');
 		}
 
 		//Description
@@ -793,6 +810,7 @@ $(document).on('click', '.poll__vote-button-sidebar', function () {
             i.siblings(".sidebar__navigation__itemz").removeClass("not-selected")
         }
 	})
+
 
 //View description button
 var dsc_created = false;
