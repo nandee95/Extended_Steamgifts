@@ -66,6 +66,8 @@ Changelog:
 - fixed multiple pages problem
 - fixed comment reply
 - [FREE] giveaway mark
+2.0.3 (01-11-2016)
+- Hide giveaway fix (no page refreshing)
 
 TODO:
 - Entered section autoscroll
