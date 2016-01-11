@@ -774,6 +774,25 @@ $(document).on('click', '.trigger-popup', function () {
 $(document).on('click', '.giveaway__hide', function () {
 	$(".popup--hide-games input[name=game_id]").val($(this).attr("data-game-id")),
 	$(".popup--hide-games .popup__heading__bold").text($(this).closest("h2").find(".giveaway__heading__name").text())
+	
+	//Use AJAX when hiding GAs
+	var t = $(".popup--hide-games .form__submit-button.js__submit-form");
+	t.removeClass("is-disabled").html('<i class="fa fa-check-circle"></i> Yes').unbind(); // Reset button state if we had previously hidden GAs
+	t.on("click", function () {
+		var game_id = t.closest("form").find("input[name=game_id]").val();
+		$.ajax({
+			url : "/", // Is unknown if there is an API param for hiding GAs so we post to main page instead
+			type : "POST",
+			dataType : "json",
+			data : t.closest("form").serialize(),
+			complete : function (data) {
+				if(data.readyState === 4) {
+					t.addClass("is-disabled").html("Done!").unbind(); // Don't allow form resubmission if user clicks the button again
+					$(document).find("i[data-game-id=" + game_id + "]").closest(".giveaway__row-outer-wrap").remove(); // Remove all matching visible GAs instances
+				}
+			}
+		});
+	});
 });
 $(document).on('click', 'nav .nav__button--is-dropdown-arrow', function () {
 	var e = $(this).hasClass("is-selected");
