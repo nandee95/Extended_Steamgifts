@@ -144,6 +144,7 @@ border-bottom:2px solid transparent !important;	\
 	margin: 5px auto 5px auto; \
 	display:block; \
 	}	\
+</style>	\
 	");
 
 //Read some values
