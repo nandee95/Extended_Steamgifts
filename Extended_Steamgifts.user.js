@@ -631,7 +631,7 @@ setTimeout(function () {
 				"undefined" != typeof e.entry_count && e.entry_count !== !1 && $(".live__entry-count").text(e.entry_count),
 				$(".nav__points").text(e.points)
 				if (Number(GM_getValue("esg_hideentered", 0)) && "success" === e.type && !t.closest(".sidebar__entry-delete").hasClass("is-hidden")) {
-					$(t).closest(".giveaway__row-outer-wrap").hide("blind", {}, 500);
+					$(t).closest(".giveaway__row-outer-wrap").slideToggle(500);
 				}
 				update_gas(e.points);
 			}
