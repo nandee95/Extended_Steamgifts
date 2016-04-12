@@ -430,7 +430,12 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 					url : pageurl,
 					success : function (source) {
 						lastpage = (source.indexOf('<span>Next</span>') == -1)
-						if (path.match('^/giveaways/') || path == "/") {
+						if (path.match('^/giveaways/entered')) {
+							
+              var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
+						
+							$('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a><i class="fa fa-angle-right"></i><a href="/giveaways/entered">Entered</a><i class="fa fa-angle-right"></i><a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>')
+						} else if (path.match('^/giveaways/') || path == "/") {
 							$('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>')
 							$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
 						} else if ($('.table').length > 0) {
