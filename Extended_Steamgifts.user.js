@@ -125,6 +125,7 @@ $("body").prepend(`<style>
 	bottom: 10px;
 	right: 40px;
 	transform: rotate(-90deg);
+	transform-origin: 14px 26px; /* fixes blurry button edges and text */
 	opacity: 0.75;
 	z-index: 50;
 	padding: 10px !important;
