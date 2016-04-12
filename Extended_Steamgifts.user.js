@@ -183,18 +183,18 @@ function updateURLParameter(url, param, paramVal) {
 if (path.match('^/account/')) {
 	var options_selected = false,
 	about_selected = false;
-	$(".sidebar__navigation:last").after(`<h3 class='sidebar__heading'>Extended Steamgifts</h3>
-		<ul class='sidebar__navigation'>
-		<li class='sidebar__navigation__item esg__options'>
-		<a class='sidebar__navigation__item__link' href='/account/profile/sync#esg_options'>
-		<div class='sidebar__navigation__item__name'>Options</div>
-		<div class='sidebar__navigation__item__underline'></div>
+	$(".sidebar__navigation:last").after(`<h3 class="sidebar__heading">Extended Steamgifts</h3>
+		<ul class="sidebar__navigation">
+		<li class="sidebar__navigation__item esg__options">
+		<a class="sidebar__navigation__item__link" href="/account/profile/sync#esg_options">
+		<div class="sidebar__navigation__item__name">Options</div>
+		<div class="sidebar__navigation__item__underline"></div>
 		</a>
 		</li>
-		<li class='sidebar__navigation__item esg__about'>
-		<a class='sidebar__navigation__item__link' href='/account/profile/sync#esg_about'>
-		<div class='sidebar__navigation__item__name'>About</div>
-		<div class='sidebar__navigation__item__underline'></div>
+		<li class="sidebar__navigation__item esg__about">
+		<a class="sidebar__navigation__item__link" href="/account/profile/sync#esg_about">
+		<div class="sidebar__navigation__item__name">About</div>
+		<div class="sidebar__navigation__item__underline"></div>
 		</a>
 		</li>
 		</ul>`);
