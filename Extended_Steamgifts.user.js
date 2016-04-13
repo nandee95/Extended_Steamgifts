@@ -152,7 +152,7 @@ var hash = $(location).attr('hash');
 var ver = GM_info.script.version;
 var username = $(".nav__avatar-outer-wrap").attr("href").replace("/user/", "");
 var pagename = $('.page__heading__breadcrumbs:first').text();
-var pagination_url = "http://" + window.location.hostname + $(".pagination__navigation").find("a:last").attr("href");
+var pagination_url = "//" + window.location.hostname + $(".pagination__navigation").find("a:last").attr("href");
 
 // Funcs
 function getPos(str, m, i) {
