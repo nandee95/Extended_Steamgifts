@@ -430,7 +430,12 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 					url : pageurl,
 					success : function (source) {
 						lastpage = (source.indexOf('<span>Next</span>') == -1)
-						if (path.match('^/giveaways/') || path == "/") {
+						if (path.match('^/giveaways/entered')) {
+							
+              var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
+						
+							$('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a><i class="fa fa-angle-right"></i><a href="/giveaways/entered">Entered</a><i class="fa fa-angle-right"></i><a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>')
+						} else if (path.match('^/giveaways/') || path == "/") {
 							$('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>')
 							$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
 						} else if ($('.table').length > 0) {
@@ -772,29 +777,6 @@ $(document).on('click', '.trigger-popup', function () {
 		followSpeed : 500,
 		modalColor : "#3c424d"
 	})
-});
-$(document).on('click', '.giveaway__hide', function () {
-	$(".popup--hide-games input[name=game_id]").val($(this).attr("data-game-id")),
-	$(".popup--hide-games .popup__heading__bold").text($(this).closest("h2").find(".giveaway__heading__name").text())
-	
-	//Use AJAX when hiding GAs
-	var t = $(".popup--hide-games .form__submit-button.js__submit-form");
-	t.removeClass("is-disabled").html('<i class="fa fa-check-circle"></i> Yes').unbind(); // Reset button state if we had previously hidden GAs
-	t.on("click", function () {
-		var game_id = t.closest("form").find("input[name=game_id]").val();
-		$.ajax({
-			url : "/", // Is unknown if there is an API param for hiding GAs so we post to main page instead
-			type : "POST",
-			dataType : "json",
-			data : t.closest("form").serialize(),
-			complete : function (data) {
-				if(data.readyState === 4) {
-					t.addClass("is-disabled").html("Done!").unbind(); // Don't allow form resubmission if user clicks the button again
-					$(document).find("i[data-game-id=" + game_id + "]").closest(".giveaway__row-outer-wrap").remove(); // Remove all matching visible GAs instances
-				}
-			}
-		});
-	});
 });
 $(document).on('click', 'nav .nav__button--is-dropdown-arrow', function () {
 	var e = $(this).hasClass("is-selected");
