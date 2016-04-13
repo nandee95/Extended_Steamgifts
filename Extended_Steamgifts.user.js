@@ -245,7 +245,7 @@ function display_options() {
 	addToOptions("Refresh points (60sec)", "esg_refresh", 0);
 	addToOptions("Scroll to top button", "esg_scrolltop", 1);
 	addToOptions("Hide entered giveaways", "esg_hideentered", 0);
-	page.html(`<div class=spage__heading">
+	page.html(`<div class="page__heading">
 		<div class="page__heading__breadcrumbs">
 		<a>Extended Steamgifts</a>
 		<i class="fa fa-angle-right">
