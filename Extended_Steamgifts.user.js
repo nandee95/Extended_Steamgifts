@@ -295,6 +295,7 @@ function display_options() {
 	addToOptions("Refresh points (60sec)", "esg_refresh", 0);
 	addToOptions("Scroll to top button", "esg_scrolltop", 1);
 	addToOptions("Hide entered giveaways", "esg_hideentered", 0);
+    addToOptions("Active discussions in sidebar", "esg_discussions", 1);
 	page.html("				\
 		<div class=\"page__heading\"> \
 		<div class=\"page__heading__breadcrumbs\">   \
@@ -364,7 +365,7 @@ function display_about() {
 //Active Discussions
 
 if ((path == '/' || path == "/giveaways/") && Number(GM_getValue("esg_autoscroll", 1))) {
-	if ($(".page__heading__breadcrumbs:contains('Active Discussions')").length) {
+	if ($(".page__heading__breadcrumbs:contains('Active Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
 		var c1 = "";
 		$(".page__heading__breadcrumbs:contains('Active Discussions')").closest(".page__heading").next()
 		.find(".table__rows").find(".table__row-outer-wrap").each(function () {
