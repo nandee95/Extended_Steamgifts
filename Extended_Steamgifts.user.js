@@ -4,15 +4,19 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.0.3
+// @version		2.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
 // @icon        https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo.png
-// @homepage    http://steamcommunity.com/groups/extendedsg
+// @homepage    https://github.com/nandee95/Extended_Steamgifts
 // @run-at		document-end
 // @grant       none
+// @license     MIT
 // ==/UserScript==
+
+/*jshint multistr: true */
+
 /*
 Changelog:
 1.5.2[BETA] (03-24-2015)
@@ -68,20 +72,29 @@ Changelog:
 - [FREE] giveaway mark
 2.0.3 (01-11-2016)
 - Hide giveaway fix (no page refreshing)
-
-TODO:
-- Entered section autoscroll
-- Comment positon
-- Comment reply
-
+2.1 (17-04-2016)
+- Fixed JSHint errors & warnings
+- Updated auto scrolling
+- Fixed ga description
+- Fixed auto scrolling on entered ga page
+- Updated query protocol to https
+- Added floating pagination
+- Fixed auto scroll loading animation
+- Added MIT license
+- Added readme file
+- Updated About page
  */
+
 
 this.GM_getValue=function (key,def) {
 	return localStorage[key] || def;
 };
 this.GM_setValue=function (key,value) {
-	return localStorage[key]=value;
+	localStorage[key]=value;
 };
+
+
+var path = window.location.pathname;
 
 //Styles
 $("body").prepend("										\
@@ -144,19 +157,34 @@ border-bottom:2px solid transparent !important;	\
 	margin: 5px auto 5px auto; \
 	display:block; \
 	}	\
-	");
+.floating-pagination \
+{ \
+position:fixed;\
+bottom:45px; \
+width:"+($(".sidebar").width()-(path=="/"||path.match("^/giveaways")?0:40))+"px;\
+text-align:center;\
+}\
+");
 
 //Read some values
-var path = window.location.pathname;
 var xsrf = $('input[type=hidden][name=xsrf_token]').val();
 var loggedin = ($('.nav__sits').length > 0) ? false : true;
-var lastpage=($(".pagination__navigation:contains('Next')").length==0);
+var lastpage=($(".pagination__navigation:contains('Next')").length===0);
 var currentpage = Number($('.pagination__navigation').find('.is-selected').attr('data-page-number'));
 var hash = $(location).attr('hash');
 var ver = GM_info.script.version;
 var username = $(".nav__avatar-outer-wrap").attr("href").replace("/user/", "");
 var pagename = $('.page__heading__breadcrumbs:first').text();
-var pagination_url = "http://"+window.location.hostname+$(".pagination__navigation").find("a:last").attr("href");
+var pagination_url = "https://"+window.location.hostname+$(".pagination__navigation").find("a:last").attr("href");
+var regex_pagination_results=/Displaying <strong>([0-9]{1,10})<\/strong> to <strong>([0-9]{1,10})<\/strong>/;
+
+var rx=(regex_pagination_results).exec($(".pagination__results").html());
+var pagination_min=0,pagination_max=0;
+if(rx)
+{
+pagination_min=rx[1];
+pagination_max=rx[2];
+}
 
 //Funcs
 function getPos(str, m, i) {
@@ -301,7 +329,7 @@ function display_about() {
 		</i><a href=\"/account/profile/sync#esg_about\">About</a>   \
 		</div></div>    \
 		<div class=form__rows><div style=\"float:right;width:200px;text-align:center;margin-bottom:5px\">			\
-		<span style=\"font-size:25px\">If you want to <br>support me:</span>\
+		<span style=\"font-size:25px\">If you would like<br>to support me:</span>\
 		<form style=\"width: 150px;padding-left:25px;padding-top:10px;margin-bottom:-15px\" action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">   \
 		<input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">   \
 		<input type=\"hidden\" name=\"hosted_button_id\" value=\"M62RESN46NKWS\">   \
@@ -310,8 +338,11 @@ function display_about() {
 		</form> <br><center style=\"font-size: 50px;font-weight:bold\">OR</center><br>	\
 		<a target=\"_blank\" href=\"https://steamcommunity.com/tradeoffer/new/?partner=95793561&token=HxnczDWg\"><img src=\"https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png\"></a>			\
 		</div>\
-		<p style=font-size:30px>Extended Steamgifts " + ver + " By: Nandee &copy; 2014-2015<br>  <br><a alt=\"Steam Profile\" href=\"http://steamcommunity.com/profiles/76561198056059289\"><p style=font-size:25px><img style=width:70% src=\"http://steamsignature.com/card/1/76561198056059289.png\"></a>  \
-		</p></span>  </div> \
+		<p style=font-size:30px>Extended Steamgifts " + ver + "<br>By: Nandee<br>&copy; 2014-2016<br>Licensed under the MIT license</a><br><br></p>  \
+        Hi!<br>I'm a hobby programmer. I'm usually working on It in my freetime.<br>It take me a lot of time to keep it working.<br>If you like this addon please think about a donation!<br>Enjoy! :D\
+		<br><br><br><br><br><br><br><br><br><br>Steam profile:<br> \
+        <a href='http://steamcommunity.com/id/nandee95'><img src='http://steamsignature.com/profile/english/76561198056059289.png'></a> \
+        </span>  </div> \
 		");
 }
 
@@ -398,7 +429,7 @@ if ((path == '/' || path == "/giveaways/") && Number(GM_getValue("esg_autoscroll
 			<ul class="sidebar__navigation">	\
 			' + c2 + '\
 			</ul>	\
-			')
+			');
 	}
 
 }
@@ -406,46 +437,55 @@ if ((path == '/' || path == "/giveaways/") && Number(GM_getValue("esg_autoscroll
 //Auto scroll
 if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
 	var loading = false;
-	$('.pagination').remove();
 	$('.widget-container--margin-top').remove();
 	$('.giveaway__row-outer-wrap:last').parent().after('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/loading.gif" class="page-loading"></div>');
 	$('.table:last').after('<br><img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/loading.gif" class="page-loading"></div>');
 	$('.comments:last').after('<br><img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/loading.gif" class="page-loading"></div>');
-	$('page-loading').hide();
+	$('.page-loading').hide();
 	var page = currentpage;
-	$('.page__heading__breadcrumbs:first').append('<i class="fa fa-angle-right"></i><a href="' + window.location.href + '"> Page ' + page + '</a>')
+	$('.page__heading__breadcrumbs:first').append('<i class="fa fa-angle-right"></i><a href="' + window.location.href + '"> Page ' + page + '</a>');
 	if($('.comment--submit').length>0)
 	{
-		$(".page__heading:contains('Comment')").after('<div class="comment--submit">'+$('.comment--submit').html()+"</div>")
-		
-		$('.comment--submit:last').remove()
+		$(".page__heading:contains('Comment')").after('<div class="comment--submit">'+$('.comment--submit').html()+"</div>");
+		$('.comment--submit:last').remove();
 	}
+    
+    $(".sidebar").append("<div class=\"floating-pagination\">"+$('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", "")+"</div>");
+    $('.pagination').remove();
+    if($(".sidebar .sidebar__navigation__item:last").get(0).getBoundingClientRect().top-$(window).height()+150<0) $(".floating-pagination").show();
+    else $(".floating-pagination").hide();
 
 	$(window).scroll(function () {
+        if($(".sidebar .sidebar__navigation__item:last").get(0).getBoundingClientRect().top-$(window).height()+150<0) $(".floating-pagination").show();
+        else $(".floating-pagination").hide();
+        
 		if (!loading && $(window).scrollTop() + $(window).height() > $(document).height() - 1000 && !lastpage) {
 			loading = true;
 			$('.page-loading').show();
-            var pageurl = updateURLParameter(pagination_url, "page", page + 1)
+            var pageurl = updateURLParameter(pagination_url, "page", page + 1);
 				$.ajax({
 					url : pageurl,
 					success : function (source) {
-						lastpage = (source.indexOf('<span>Next</span>') == -1)
-						if (path.match('^/giveaways/') || path == "/") {
-							$('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>')
-							$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
-						} else if ($('.table').length > 0) {
-							
-              var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
-						
-							$('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>')
+						lastpage = (source.indexOf('<span>Next</span>') == -1);
+                        var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
+                        if ($('.table').length > 0) {
+							$('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>');
 						}
+						else if (path.match('^/giveaways/') || path == "/") {
+							$('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>');
+							$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
+                        }
 						else if ($('.comments').length > 0) {
-							
-              var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
-							 $('.comments:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">Comments </a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="comments">' + $(source).find('.comments:last').html() + '</div>')
-						
+                            $('.comments:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">Comments </a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="comments">' + $(source).find('.comments:last').html() + '</div>');
 						}
 						page++;
+                        rx=(regex_pagination_results).exec($(source).find(".pagination__results").html());
+                        if(rx)
+                            pagination_max=rx[2];
+
+                        $(".floating-pagination").html($(source).find('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", ""));
+                        $(".pagination__results strong:first").html(pagination_min);
+                        $(".pagination__results strong:nth-child(2)").html(pagination_max);
 					},
 					complete : function () {
 						loading = false;
@@ -473,7 +513,7 @@ $.fn.filter_ga = function () {
 		return $(this);
 	return $(this).each(function () {
 		var ga = $(this);
-		if ($(ga).closest(".pinned-giveaways__outer-wrap").length != 0)
+		if ($(ga).closest(".pinned-giveaways__outer-wrap").length !== 0)
 			return;
 		//Read some data
 		var url = $(ga).find('.giveaway__heading__name').attr('href');
@@ -485,7 +525,7 @@ $.fn.filter_ga = function () {
 		}
 
 		var entered = $(ga).find('.giveaway__row-inner-wrap').hasClass('is-faded');
-		var e = $(ga).find('.giveaway__links').find('span:first').text().replace(/\,/g, '');
+		e = $(ga).find('.giveaway__links').find('span:first').text().replace(/\,/g, '');
 		e = e.substring(0, getPos(e, ' ', 1));
 		var entries = Number(e);
 
@@ -502,12 +542,12 @@ $.fn.filter_ga = function () {
 		var enough = req <= has ? true : false;
 
 		//var wishlist=(($.inArray(url,wishlist)!=-1)?true:false);
-		var group = $(ga).find('.giveaway__column--group').length > 0 ? 1 : 0
-			var whitelist = $(ga).find('.giveaway__column--whitelist').length > 0 ? 1 : 0
-			var regionrestricted = $(ga).find('.giveaway__column--region-restricted').length > 0 ? 1 : 0
-			var communityvoted = $(ga).find('.giveaway__column--community-voted').length > 0 ? 1 : 0
+		var group = $(ga).find('.giveaway__column--group').length > 0 ? 1 : 0;
+			var whitelist = $(ga).find('.giveaway__column--whitelist').length > 0 ? 1 : 0;
+			var regionrestricted = $(ga).find('.giveaway__column--region-restricted').length > 0 ? 1 : 0;
+			var communityvoted = $(ga).find('.giveaway__column--community-voted').length > 0 ? 1 : 0;
 			var level = 0;
-		if ($(ga).find(".giveaway__column--contributor-level").length != 0)
+		if ($(ga).find(".giveaway__column--contributor-level").length !== 0)
 			level = Number($(ga).find(".giveaway__column--contributor-level").text().replace("Level", "").replace("+", "").trim());
 
 		if (!(GM_getValue("esg_f_min_level", 0) <= level && level <= GM_getValue("esg_f_max_level", 10)))
@@ -516,18 +556,18 @@ $.fn.filter_ga = function () {
 			$(ga).hide();
 		else if (!(GM_getValue("esg_f_min_points", 0) <= req && req <= GM_getValue("esg_f_max_points", 100)))
 			$(ga).hide();
-		else if ((GM_getValue("esg_f_group", 1) == 0 && group) || (GM_getValue("esg_f_group", 1) == 2 && !group))
+		else if ((GM_getValue("esg_f_group", 1) === 0 && group) || (GM_getValue("esg_f_group", 1) == 2 && !group))
 			$(ga).hide();
-		else if ((GM_getValue("esg_f_whitelist", 1) == 0 && whitelist) || (GM_getValue("esg_f_whitelist", 1) == 2 && !whitelist))
+		else if ((GM_getValue("esg_f_whitelist", 1) === 0 && whitelist) || (GM_getValue("esg_f_whitelist", 1) == 2 && !whitelist))
 			$(ga).hide();
-		else if ((GM_getValue("esg_f_regionrestricted", 1) == 0 && regionrestricted) || (GM_getValue("esg_f_regionrestricted", 1) == 2 && !regionrestricted))
+		else if ((GM_getValue("esg_f_regionrestricted", 1) === 0 && regionrestricted) || (GM_getValue("esg_f_regionrestricted", 1) == 2 && !regionrestricted))
 			$(ga).hide();
-		else if ((GM_getValue("esg_f_community", 1) == 0 && communityvoted) || (GM_getValue("esg_f_community", 1) == 2 && !communityvoted))
+		else if ((GM_getValue("esg_f_community", 1) === 0 && communityvoted) || (GM_getValue("esg_f_community", 1) == 2 && !communityvoted))
 			$(ga).hide();
 		else
 			$(ga).show();
 	});
-}
+};
 //Giveaway function
 $.fn.format_ga = function () {
 	return $(this).each(function () {
@@ -545,7 +585,7 @@ $.fn.format_ga = function () {
 		}
 
 		var entered = $(ga).find('.giveaway__row-inner-wrap').hasClass('is-faded');
-		var e = $(ga).find('.giveaway__links').find('span:first').text().replace(/\,/g, '');
+		e = $(ga).find('.giveaway__links').find('span:first').text().replace(/\,/g, '');
 		e = e.substring(0, getPos(e, ' ', 1));
 		var entries = Number(e);
 
@@ -595,7 +635,7 @@ $.fn.format_ga = function () {
 		if (Number(GM_getValue("esg_h_new", 1)) && newga) {
 			$(ga).find(".giveaway__heading__name").prepend('<font color="#BFBF00">[NEW]</font> ');
 		}
-		if (Number(GM_getValue("esg_h_new", 1)) && req==0) {
+		if (Number(GM_getValue("esg_h_new", 1)) && req===0) {
 			$(ga).find(".giveaway__heading__name").prepend('<font color="#00BFBF">[FREE]</font> ');
 		}
 
@@ -617,19 +657,31 @@ setTimeout(function () {
 	$(".sidebar__entry-insert, .sidebar__entry-delete").unbind("click");
 	$(document).on('click', '.sidebar__entry-insert, .sidebar__entry-delete', function () {
 		var t = $(this);
-		t.addClass("is-hidden"),
-		t.closest("form").find(".sidebar__entry-loading").removeClass("is-hidden"),
-		t.closest("form").find("input[name=do]").val(t.attr("data-do")),
+		t.addClass("is-hidden");
+		t.closest("form").find(".sidebar__entry-loading").removeClass("is-hidden");
+		t.closest("form").find("input[name=do]").val(t.attr("data-do"));
 		$.ajax({
 			url : "/ajax.php",
 			type : "POST",
 			dataType : "json",
 			data : t.closest("form").serialize(),
 			success : function (e) {
-				t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden"),
-				"success" === e.type ? t.hasClass("sidebar__entry-insert") ? t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden") : t.hasClass("sidebar__entry-delete") && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden") : "error" === e.type && t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== !1 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg),
-				"undefined" != typeof e.entry_count && e.entry_count !== !1 && $(".live__entry-count").text(e.entry_count),
-				$(".nav__points").text(e.points)
+				t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden");
+				//"success" === e.type ? t.hasClass("sidebar__entry-insert") ? t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden") : t.hasClass("sidebar__entry-delete") && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden") : "error" === e.type && t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg)
+				if("success" === e.type && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden"))
+                {
+                    if(t.hasClass("sidebar__entry-insert")) t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden");
+                    else if(t.hasClass("sidebar__entry-delete")) t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden");
+                }
+                else if("error" === e.type)
+                {
+                     t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg);
+                }
+				if("undefined" !== typeof e.entry_count&& e.entry_count !== 0)
+                {
+                    $(".live__entry-count").text(e.entry_count);
+                }
+				$(".nav__points").text(e.points);
 				if (Number(GM_getValue("esg_hideentered", 0)) && "success" === e.type && !t.closest(".sidebar__entry-delete").hasClass("is-hidden")) {
 					$(t).closest(".giveaway__row-outer-wrap").hide("blind", {}, 500);
 				}
@@ -685,7 +737,6 @@ if(GM_getValue("esg_refresh",0))
 	});
 	},60000);
 }
- 
 
 //Scroll to top
 if (Number(GM_getValue("esg_scrolltop", 1))) {
@@ -767,41 +818,19 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 //Click event fix (part of original js)
 $(document).on('click', '.trigger-popup', function () {
 	$("." + $(this).attr("data-popup")).bPopup({
-		opacity : .85,
+		opacity : 0.85,
 		fadeSpeed : 200,
 		followSpeed : 500,
 		modalColor : "#3c424d"
-	})
-});
-$(document).on('click', '.giveaway__hide', function () {
-	$(".popup--hide-games input[name=game_id]").val($(this).attr("data-game-id")),
-	$(".popup--hide-games .popup__heading__bold").text($(this).closest("h2").find(".giveaway__heading__name").text())
-	
-	//Use AJAX when hiding GAs
-	var t = $(".popup--hide-games .form__submit-button.js__submit-form");
-	t.removeClass("is-disabled").html('<i class="fa fa-check-circle"></i> Yes').unbind(); // Reset button state if we had previously hidden GAs
-	t.on("click", function () {
-		var game_id = t.closest("form").find("input[name=game_id]").val();
-		$.ajax({
-			url : "/", // Is unknown if there is an API param for hiding GAs so we post to main page instead
-			type : "POST",
-			dataType : "json",
-			data : t.closest("form").serialize(),
-			complete : function (data) {
-				if(data.readyState === 4) {
-					t.addClass("is-disabled").html("Done!").unbind(); // Don't allow form resubmission if user clicks the button again
-					$(document).find("i[data-game-id=" + game_id + "]").closest(".giveaway__row-outer-wrap").remove(); // Remove all matching visible GAs instances
-				}
-			}
-		});
 	});
 });
+
 $(document).on('click', 'nav .nav__button--is-dropdown-arrow', function () {
 	var e = $(this).hasClass("is-selected");
-	$("nav .nav__button").removeClass("is-selected"),
-	$("nav .nav__relative-dropdown").addClass("is-hidden"),
-	e || $(this).addClass("is-selected").siblings(".nav__relative-dropdown").removeClass("is-hidden"),
-	t.stopPropagation()
+	$("nav .nav__button").removeClass("is-selected");
+	$("nav .nav__relative-dropdown").addClass("is-hidden");
+	if(e || $(this).addClass("is-selected").siblings(".nav__relative-dropdown").removeClass("is-hidden"))
+    t.stopPropagation();
 });
 
 $(document).on('click', '.poll__vote-button-sidebar', function () {
@@ -812,25 +841,23 @@ $(document).on('click', '.poll__vote-button-sidebar', function () {
 			url : ajax_url,
 			type : "POST",
 			data : t.closest("form").serialize()
-		})
+		});
 		$(this).closest(".poll").find(".sidebar__navigation__itemz.is-selected").attr("data-votes", function (e, t) {
-			return Number(t) - 1
-		})
-        
-		//i.toggleClass("is-selected")
+			return Number(t) - 1;
+		});
         if(i.hasClass("is-selected"))
         {
-            i.removeClass("not-selected")
-            i.siblings(".sidebar__navigation__itemz").removeClass("is-selected")
-        i.siblings(".sidebar__navigation__itemz").addClass("not-selected")
+            i.removeClass("not-selected");
+            i.siblings(".sidebar__navigation__itemz").removeClass("is-selected");
+        i.siblings(".sidebar__navigation__itemz").addClass("not-selected");
         i.attr("data-votes", function (e, t) {
-				return Number(t) + 1
-			})
+				return Number(t) + 1;
+			});
         } else
         {
-            i.siblings(".sidebar__navigation__itemz").removeClass("not-selected")
+            i.siblings(".sidebar__navigation__itemz").removeClass("not-selected");
         }
-	})
+	});
 
 
 //View description button
@@ -861,7 +888,7 @@ $(document).on('click', '.open--desc', function () {
 	var t = $(this);
 	var link = $(t).closest(".giveaway__row-outer-wrap").find(".giveaway__heading__name").attr("href");
 	$(".popup__desc-loading").bPopup({
-		opacity : .85,
+		opacity : 0.85,
 		fadeSpeed : 200,
 		followSpeed : 500,
 		modalColor : "#3c424d",
@@ -872,12 +899,13 @@ $(document).on('click', '.open--desc', function () {
 	var req = $.ajax({
 			url : link,
 			success : function (source) {
+                $(".popup__desc-loading").hide();
 				var desc = $(source).find(".page__description").html();
 				if (desc) {
 					$(".popup__desc-display").find(".popup__heading").html('<span class="popup__heading__bold">Description:</span><br><div class=\"popup--content page__description\" style=\"word-break: break-all;text-align:left;\">' + desc + "</div>");
 					$(".popup__desc-loading").find(".b-close").trigger("click");
 					$(".popup__desc-display").bPopup({
-						opacity : .85,
+						opacity : 0.85,
 						fadeSpeed : 200,
 						followSpeed : 500,
 						modalColor : "#3c424d",
@@ -889,7 +917,7 @@ $(document).on('click', '.open--desc', function () {
 					$(".popup__desc-loading").find(".b-close").trigger("click");
 					$(".popup__desc-error").find(".popup__heading__bold").text("No description found!");
 					$(".popup__desc-error").bPopup({
-						opacity : .85,
+						opacity : 0.85,
 						fadeSpeed : 200,
 						followSpeed : 500,
 						modalColor : "#3c424d",
@@ -903,7 +931,7 @@ $(document).on('click', '.open--desc', function () {
 				$(".popup__desc-loading").find(".b-close").trigger("click");
 				$(".popup__desc-error").find(".popup__heading__bold").text("Connection failed!");
 				$(".popup__desc-error").bPopup({
-					opacity : .85,
+					opacity : 0.85,
 					fadeSpeed : 200,
 					followSpeed : 500,
 					modalColor : "#3c424d",
@@ -941,13 +969,13 @@ if (path == '/') {
 		</div>	\
 		</td>	\
 		<td><div class="form__checkbox cb__three" save="esg_f_group">	\
-		<i class="fa fa-circle-o"' + (f_group == 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_group === 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_group == 1 ? "" : ' style="display:none"') + '></i>		\
 		<i class="fa fa-circle"' + (f_group == 2 ? "" : ' style="display:none"') + '></i> Group	\
 		</div>\
 		</td>		\
 		<td><div class="form__checkbox cb__three" save="esg_f_whitelist">	\
-		<i class="fa fa-circle-o"' + (f_white == 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_white === 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_white == 1 ? "" : ' style="display:none"') + '></i>		\
 		<i class="fa fa-circle"' + (f_white == 2 ? "" : ' style="display:none"') + '></i> Whitelist	\
 		</div>\
@@ -962,13 +990,13 @@ if (path == '/') {
 		</span></div>	\
 		</div></td>	\
 		<td><div class="form__checkbox cb__three" save="esg_f_regionrestricted">	\
-		<i class="fa fa-circle-o"' + (f_region == 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_region === 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_region == 1 ? "" : ' style="display:none"') + '></i>		\
 		<i class="fa fa-circle"' + (f_region == 2 ? "" : ' style="display:none"') + '></i> Region restricted	\
 		</div>\
 		</td>		\
 		<td><div class="form__checkbox cb__three" save="esg_f_community">	\
-		<i class="fa fa-circle-o"' + (f_community == 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_community === 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_community == 1 ? "" : ' style="display:none"') + '></i>		\
 		<i class="fa fa-circle"' + (f_community == 2 ? "" : ' style="display:none"') + '></i> Community Voted	\
 		</div>\
