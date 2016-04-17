@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.1
+// @version		2.1.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -83,6 +83,13 @@ Changelog:
 - Added MIT license
 - Added readme file
 - Updated About page
+2.1.1
+- Updated Sgv2 Dark Support
+- Fixed comment writing & replying
+- Fixed broken enter giveaway button
+- Fixed display chances in Options
+- Fixed [FREE] tag on Invite Only giveaways
+- Added giveaway train option to the discussions menu
  */
 
 
@@ -161,7 +168,7 @@ border-bottom:2px solid transparent !important;	\
 { \
 position:fixed;\
 bottom:45px; \
-width:"+($(".sidebar").width()-(path=="/"||path.match("^/giveaways")?0:40))+"px;\
+width:"+($(".sidebar").width()-40)+"px;\
 text-align:center;\
 }\
 ");
@@ -210,6 +217,14 @@ function updateURLParameter(url, param, paramVal) {
 	var rows_txt = temp + "" + param + "=" + paramVal;
 	return baseURL + "?" + newAdditionalURL + rows_txt;
 }
+
+$(".nav__button:contains('Discussions')").closest(".nav__button-container").find(".nav__absolute-dropdown").append('<a class="nav__row" href="https://www.steamgifts.com/discussions/search?q=train">\
+											<i class="icon-grey fa fa-fw fa-train"></i>\
+											<div class="nav__row__summary">\
+												<p class="nav__row__summary__name">Giveaway train</p>\
+												<p class="nav__row__summary__description">Searching for giveaway trains</p>\
+											</div>\
+										</a>');
 
 //Options
 if (path.match('^/account/')) {
@@ -362,9 +377,6 @@ if ((path == '/' || path == "/giveaways/") && Number(GM_getValue("esg_autoscroll
 			var owner = $(this).find(".table__column__secondary-link").eq(1).text();
 			var created = $(this).find(".table__column__secondary-link").eq(0).closest("p").find("span").text();
 			var title = otitle;
-			/*if (title.length > 25)
-				title = title.substring(0, 22) + "...";
-            */
 
 			c1 += '<li class="sidebar__navigation__itemz">	\
 			<a class="sidebar__navigation__item__link" href="' + url + '" title="' + otitle + '" >	\
@@ -446,8 +458,9 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 	$('.page__heading__breadcrumbs:first').append('<i class="fa fa-angle-right"></i><a href="' + window.location.href + '"> Page ' + page + '</a>');
 	if($('.comment--submit').length>0)
 	{
-		$(".page__heading:contains('Comment')").after('<div class="comment--submit">'+$('.comment--submit').html()+"</div>");
-		$('.comment--submit:last').remove();
+		//$(".page__heading:contains('Comment')").after('<div class="comment--submit">'+$('.comment--submit').html()+"</div>");
+        $('.comment--submit').insertAfter(".page__heading:contains('Comment')");
+		//$('.comment--submit:last').detach();
 	}
     
     $(".sidebar").append("<div class=\"floating-pagination\">"+$('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", "")+"</div>");
@@ -458,7 +471,6 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 	$(window).scroll(function () {
         if($(".sidebar .sidebar__navigation__item:last").get(0).getBoundingClientRect().top-$(window).height()+150<0) $(".floating-pagination").show();
         else $(".floating-pagination").hide();
-        
 		if (!loading && $(window).scrollTop() + $(window).height() > $(document).height() - 1000 && !lastpage) {
 			loading = true;
 			$('.page-loading').show();
@@ -467,11 +479,12 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
 					url : pageurl,
 					success : function (source) {
 						lastpage = (source.indexOf('<span>Next</span>') == -1);
-                        var mainurl=pageurl.substring(0, pageurl.indexOf('&'));
+                        var mainurl;
+                        pageurl.substring(0, pageurl.indexOf('&'));
                         if ($('.table').length > 0) {
 							$('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="'+pageurl+'">Page ' + (page + 1)+ '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>');
 						}
-						else if (path.match('^/giveaways/') || path == "/") {
+						else if ($(".giveaway__row-outer-wrap").length>0) {
 							$('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1)+ '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>');
 							$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
                         }
@@ -575,13 +588,13 @@ $.fn.format_ga = function () {
 
 		//Read some data
 		var url = $(ga).find('.giveaway__heading__name').attr('href');
-		var code = url.substring(getPos(url, '/', 2) + 1, getPos(url, '/', 3));
-
+        var code=0;
+        if(url) code = url.substring(getPos(url, '/', 2) + 1, getPos(url, '/', 3));
 		var c = $(ga).find('.giveaway__heading__thin').text();
 		var copies = 1,
 		e = 0;
 		if (c.indexOf('Copies') >  - 1) {
-			copies = Number(c.substring(1, getPos(c, ' ', 1)).replace("(", "").replace("(", "").replace(",", ""));
+            copies = Number(c.substring(1, getPos(c, ' ', 1)).replace("(", "").replace("(", "").replace(",", ""));
 		}
 
 		var entered = $(ga).find('.giveaway__row-inner-wrap').hasClass('is-faded');
@@ -608,7 +621,7 @@ $.fn.format_ga = function () {
 		var user = $(ga).find(".giveaway__username").text();
 
 		//Display chances
-		if (Number(GM_getValue("esg_chances", 1)) || loggedin) {
+		if (Number(GM_getValue("esg_chances", 1)) && loggedin) {
 			var color;
 			if (chance == 100)
 				color = "red";
@@ -635,7 +648,7 @@ $.fn.format_ga = function () {
 		if (Number(GM_getValue("esg_h_new", 1)) && newga) {
 			$(ga).find(".giveaway__heading__name").prepend('<font color="#BFBF00">[NEW]</font> ');
 		}
-		if (Number(GM_getValue("esg_h_new", 1)) && req===0) {
+		if (Number(GM_getValue("esg_h_new", 1)) && req===0 && $(ga).find('.giveaway__heading__name').html()!='Invite Only') {
 			$(ga).find(".giveaway__heading__name").prepend('<font color="#00BFBF">[FREE]</font> ');
 		}
 
@@ -654,6 +667,7 @@ $('.giveaway__row-outer-wrap').format_ga();
 
 //Enter/Remove Button click
 setTimeout(function () {
+    if(path.match('^/giveaway/')) return;
 	$(".sidebar__entry-insert, .sidebar__entry-delete").unbind("click");
 	$(document).on('click', '.sidebar__entry-insert, .sidebar__entry-delete', function () {
 		var t = $(this);
@@ -667,20 +681,8 @@ setTimeout(function () {
 			data : t.closest("form").serialize(),
 			success : function (e) {
 				t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden");
-				//"success" === e.type ? t.hasClass("sidebar__entry-insert") ? t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden") : t.hasClass("sidebar__entry-delete") && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden") : "error" === e.type && t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg)
-				if("success" === e.type && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden"))
-                {
-                    if(t.hasClass("sidebar__entry-insert")) t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden");
-                    else if(t.hasClass("sidebar__entry-delete")) t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden");
-                }
-                else if("error" === e.type)
-                {
-                     t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg);
-                }
-				if("undefined" !== typeof e.entry_count&& e.entry_count !== 0)
-                {
-                    $(".live__entry-count").text(e.entry_count);
-                }
+				"success" === e.type ? t.hasClass("sidebar__entry-insert") ? t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden") : t.hasClass("sidebar__entry-delete") && t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden") : "error" === e.type && t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg);
+                $(".live__entry-count").text(e.entry_count);
 				$(".nav__points").text(e.points);
 				if (Number(GM_getValue("esg_hideentered", 0)) && "success" === e.type && !t.closest(".sidebar__entry-delete").hasClass("is-hidden")) {
 					$(t).closest(".giveaway__row-outer-wrap").hide("blind", {}, 500);
@@ -824,6 +826,14 @@ $(document).on('click', '.trigger-popup', function () {
 		modalColor : "#3c424d"
 	});
 });
+/*
+$(document).on('click', '.js__submit-form', function () {
+    alert(2);
+    $(this).hasClass("js__edit-giveaway");
+    $(this).closest("form").find("input[name=parent_id]").val($(this).closest(".comment").attr("data-comment-id"));
+    $(this).closest("form").submit();
+    return 0;
+});*/
 
 $(document).on('click', 'nav .nav__button--is-dropdown-arrow', function () {
 	var e = $(this).hasClass("is-selected");
