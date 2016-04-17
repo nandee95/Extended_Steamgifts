@@ -57,7 +57,7 @@ Changelog:
 - Removed Giveaway Highlighting feature(becouse of bad performance & new filter feature)
 - Giveaway filtering
 - Re-enabled bug reporting button
-- Added Steamgifts dicussion's url & GitHub url to the menu
+- Added Steamgifts discussion's url & GitHub url to the menu
 - Re-added refreshing points (every 60 seconds, optional, turned off by default)
 2.0.1 (11-17-2015)
 - Fixed point updater in options
@@ -771,8 +771,8 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	<a class=\"nav__row\" href=\"/discussions/search?q=extended+steamgifts\">		\
 	<i class=\"icon-blue fa fa-fw fa-comment\"></i>		\
 	<div class=\"nav__row__summary\">		\
-	<p class=\"nav__row__summary__name\">Dicussion</p>		\
-	<p class=\"nav__row__summary__description\">Steamgifts dicussion</p>		\
+	<p class=\"nav__row__summary__name\">Discussion</p>		\
+	<p class=\"nav__row__summary__description\">Steamgifts discussion</p>		\
 	</div>		\
 	</a>		\
 	<a class=\"nav__row\" href=\"/account/profile/sync#esg_options\">		\
