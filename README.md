@@ -2,7 +2,7 @@ This is an userscript for steamgifts.com It helps you to use this website faster
 
 <a href="http://steamcommunity.com/groups/extendedsg">Steam Group</a>
 
-<b>Supoort:</b>
+<b>Supoort:</b><br>
 It's fully compatible with the new site, almost every browsers.
 
 <b>Features:</b>
