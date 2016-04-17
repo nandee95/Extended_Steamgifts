@@ -1,3 +1,5 @@
+<a href='https://pledgie.com/campaigns/31484'><img alt='Click here to lend your support to: Extended Steamgifts and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/31484.png?skin_name=chrome' border='0' ></a>
+
 This is an userscript for steamgifts.com It helps you to use this website faster and makes the browsing more confortable. It has a lot of cool features. Check out the screenshots!!
 
 <a href="http://steamcommunity.com/groups/extendedsg">Steam Group</a>
