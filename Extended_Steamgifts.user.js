@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.1.2
+// @version		2.1.3
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -57,7 +57,7 @@ Changelog:
 - Removed Giveaway Highlighting feature(becouse of bad performance & new filter feature)
 - Giveaway filtering
 - Re-enabled bug reporting button
-- Added Steamgifts discussion's url & GitHub url to the menu
+- Added Steamgifts dicussion's url & GitHub url to the menu
 - Re-added refreshing points (every 60 seconds, optional, turned off by default)
 2.0.1 (11-17-2015)
 - Fixed point updater in options
@@ -81,16 +81,32 @@ Changelog:
 - Added MIT license
 - Added readme file
 - Updated About page
-2.1.1
+2.1.1 (17-04-2016)
 - Updated Sgv2 Dark Support
 - Fixed comment writing & replying
 - Fixed broken enter giveaway button
 - Fixed display chances in Options
 - Fixed [FREE] tag on Invite Only giveaways
 - Added giveaway train option to the discussions menu
-2.1.2
+2.1.2 (17-04-2016)
 - Small bugfixes
 - Added option to hide Active Discussions from the sidebar
+2.1.3 (19-04-2016)
+- Fixed giveaway hiding
+- Fixed Filter button disappearing
+- Fixed Fiter problems with autoscroll disabled
+- Modified chance calculation (just a litte bit)
+- Added chances to the entered giveaway page
+- Auto scroll update: utomatically fill the window with pages no need to scroll
+- Added 2 new menuitems to the Discussions menu: Quizzes
+- Added 2 new menuitems to the Giveaways menu: Create Quiz
+- Small ESG menu modification
+
+TODO:
+- Level bar
+- Bump all
+- Enter all
+
  */
 this.GM_getValue = function(key, def) {
     return localStorage[key] || def;
@@ -218,13 +234,18 @@ function updateURLParameter(url, param, paramVal) {
     return baseURL + "?" + newAdditionalURL + rows_txt;
 }
 
-$(".nav__button:contains('Discussions')").closest(".nav__button-container").find(".nav__absolute-dropdown").append('<a class="nav__row" href="https://www.steamgifts.com/discussions/search?q=train">\
-											<i class="icon-grey fa fa-fw fa-train"></i>\
-											<div class="nav__row__summary">\
-												<p class="nav__row__summary__name">Giveaway train</p>\
-												<p class="nav__row__summary__description">Searching for giveaway trains</p>\
-											</div>\
-										</a>');
+$(".nav__button:contains('Discussions')").closest(".nav__button-container").find(".nav__absolute-dropdown").append(' \
+<a class="nav__row" href="https://www.steamgifts.com/discussions/search?q=train"><i class="icon-yellow fa fa-fw fa-train"></i> \
+<div class="nav__row__summary"><p class="nav__row__summary__name">Trains</p><p class="nav__row__summary__description">Searching for trains</p></div></a>  \
+<a class="nav__row" href="https://www.steamgifts.com/discussions/search?q=quiz"><i class="icon-yellow fa fa-fw fa-question"></i> \
+<div class="nav__row__summary"><p class="nav__row__summary__name">Quizzes</p><p class="nav__row__summary__description">Searching for quizzes</p></div></a> \
+');
+
+$(".nav__button:contains('Giveaways')").closest(".nav__button-container").find(".nav__absolute-dropdown").append(' \
+<a class="nav__row" href="http://www.itstoohard.com/create" target="_blank"><i class="icon-green fa fa-fw fa-question"></i> \
+<div class="nav__row__summary"><p class="nav__row__summary__name">Create quiz</p><p class="nav__row__summary__description">It\'s too hard</p></div></a>  \
+');
+
 
 //Options
 if (path.match('^/account/')) {
@@ -453,9 +474,7 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
     var page = currentpage;
     $('.page__heading__breadcrumbs:first').append('<i class="fa fa-angle-right"></i><a href="' + window.location.href + '"> Page ' + page + '</a>');
     if ($('.comment--submit').length > 0) {
-        //$(".page__heading:contains('Comment')").after('<div class="comment--submit">'+$('.comment--submit').html()+"</div>");
         $('.comment--submit').insertAfter(".page__heading:contains('Comment')");
-        //$('.comment--submit:last').detach();
     }
 
     $(".sidebar").append("<div class=\"floating-pagination\">" + $('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", "") + "</div>");
@@ -478,8 +497,12 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
                     pageurl.substring(0, pageurl.indexOf('&'));
                     if ($('.table').length > 0) {
                         $('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1) + '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>');
+                        check_entered_chances();
+
                     } else if ($(".giveaway__row-outer-wrap").length > 0) {
-                        $('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1) + '</a></div></div><div>' + $(source).find('.giveaway__row-outer-wrap:last').parent().html() + '</div>');
+
+                        $('.giveaway__row-outer-wrap:last').parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="/">Giveaways</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1) + '</a></div></div>');
+                        $(source).find(".giveaway__row-outer-wrap:last").parent().insertAfter(".page__heading:last");
                         $(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
                     } else if ($('.comments').length > 0) {
                         $('.comments:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">Comments </a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1) + '</a></div></div><div class="comments">' + $(source).find('.comments:last').html() + '</div>');
@@ -496,6 +519,7 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
                 complete: function() {
                     loading = false;
                     $('.page-loading').hide();
+                    $(window).trigger('scroll');
                 }
             });
         }
@@ -539,7 +563,7 @@ $.fn.filter_ga = function() {
         if (entries <= 0)
             chance = 100;
         else
-            chance = Math.round(copies / (entries + 1) * 10000) / 100;
+            chance = Math.round(copies / (entries + (entered?0:1)) * 10000) / 100;
         if (chance > 100)
             chance = 100;
 
@@ -599,7 +623,7 @@ $.fn.format_ga = function() {
         if (entries <= 0)
             chance = 100;
         else
-            chance = Math.round(copies / (entries + 1) * 10000) / 100;
+            chance = Math.round(copies / (entries + (entered?0:1)) * 10000) / 100;
         if (chance > 100)
             chance = 100;
 
@@ -732,6 +756,29 @@ if (GM_getValue("esg_refresh", 0)) {
     }, 60000);
 }
 
+//Chances on entered page
+function check_entered_chances()
+{
+    if (path.match('^/giveaways/entered')&&Number(GM_getValue("esg_chances", 1))) {
+        $(".table:last").find(".table__column--width-small:first").before('<div class="table__column--width-small text-center">Chances</div>');
+        $(".table:last").find(".table__row-outer-wrap").each(function () {
+            var title=$(this).find('.table__column__heading').html();
+            var copies=1;
+            if(title.indexOf("Copies")!=-1) copies=title.match(/(?:.*)\(([0-9]{1,5}) Copies\)/)[1];
+            var entries=$(this).find(".table__column--width-small:first").html().replace(/\,/g, '');
+            var chance = 0;
+            if (entries <= 0)
+                chance = 100;
+            else
+                chance = Math.round(copies / (entries) * 10000) / 100;
+            if (chance > 100)
+                chance = 100;
+            $(this).find(".table__column--width-small:first").before('<div class="table__column--width-small text-center">'+chance+'%</div>');
+        });
+    }
+}
+check_entered_chances();
+
 //Scroll to top
 if (Number(GM_getValue("esg_scrolltop", 1))) {
     $("body").prepend("<div class=\"scroll-top form__submit-button\">&gt;</div>");
@@ -771,8 +818,8 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	<a class=\"nav__row\" href=\"/discussions/search?q=extended+steamgifts\">		\
 	<i class=\"icon-blue fa fa-fw fa-comment\"></i>		\
 	<div class=\"nav__row__summary\">		\
-	<p class=\"nav__row__summary__name\">Discussion</p>		\
-	<p class=\"nav__row__summary__description\">Steamgifts discussion</p>		\
+	<p class=\"nav__row__summary__name\">Dicussion</p>		\
+	<p class=\"nav__row__summary__description\">Steamgifts dicussion</p>		\
 	</div>		\
 	</a>		\
 	<a class=\"nav__row\" href=\"/account/profile/sync#esg_options\">		\
@@ -792,15 +839,16 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	<a class=\"nav__row\" target=\"blank\" href=\"https://github.com/nandee95/Extended_Steamgifts\">		\
 	<i class=\"icon-green fa fa-fw fa-github\"></i>		\
 	<div class=\"nav__row__summary\">		\
-	<p class=\"nav__row__summary__name\">Source Code</p>		\
-	<p class=\"nav__row__summary__description\">GitHub</p>		\
+	<p class=\"nav__row__summary__name\">Source Code on GitHub</p>		\
+	<p class=\"nav__row__summary__description\">Extended Steamgifts " + ver + "</p>		\
 	</div>		\
 	</a>		\
 	<a class=\"nav__row\" href=\"/account/profile/sync#esg_about\">		\
 	<i class=\"fa fa-fw fa-info-circle\" style=\"color:lightblue\"></i>		\
 	<div class=\"nav__row__summary\">		\
 	<p class=\"nav__row__summary__name\">About</p>		\
-	<p class=\"nav__row__summary__description\">Extended Steamgifts " + ver + "        \</p>		\
+	<p class=\"nav__row__summary__description\"><b style=\"font-weight:bold\">If you like this addon please<br>think about a donation!</b>        \
+    </p>		\
 	</div>		\
 	</a>		\
 	</div>		\
@@ -818,14 +866,30 @@ $(document).on('click', '.trigger-popup', function() {
         modalColor: "#3c424d"
     });
 });
-/*
-$(document).on('click', '.js__submit-form', function () {
-    alert(2);
-    $(this).hasClass("js__edit-giveaway");
-    $(this).closest("form").find("input[name=parent_id]").val($(this).closest(".comment").attr("data-comment-id"));
-    $(this).closest("form").submit();
-    return 0;
-});*/
+
+$(document).on('click', '.giveaway__hide', function () {
+	$(".popup--hide-games input[name=game_id]").val($(this).attr("data-game-id")),
+	$(".popup--hide-games .popup__heading__bold").text($(this).closest("h2").find(".giveaway__heading__name").text())
+	
+	//Use AJAX when hiding GAs
+	var t = $(".popup--hide-games .form__submit-button.js__submit-form");
+	t.removeClass("is-disabled").html('<i class="fa fa-check-circle"></i> Yes').unbind(); // Reset button state if we had previously hidden GAs
+	t.on("click", function () {
+		var game_id = t.closest("form").find("input[name=game_id]").val();
+		$.ajax({
+			url : "/", // Is unknown if there is an API param for hiding GAs so we post to main page instead
+			type : "POST",
+			dataType : "json",
+			data : t.closest("form").serialize(),
+			complete : function (data) {
+				if(data.readyState === 4) {
+					t.addClass("is-disabled").html("Done!").unbind(); // Don't allow form resubmission if user clicks the button again
+					$(document).find("i[data-game-id=" + game_id + "]").closest(".giveaway__row-outer-wrap").remove(); // Remove all matching visible GAs instances
+				}
+			}
+		});
+	});
+});
 
 $(document).on('click', 'nav .nav__button--is-dropdown-arrow', function() {
     var e = $(this).hasClass("is-selected");
@@ -957,7 +1021,7 @@ if (path == '/') {
     var f_region = GM_getValue("esg_f_regionrestricted", 1);
     var f_community = GM_getValue("esg_f_community", 1);
 
-    $(".page__heading").after('<div class="filter-content pinned-giveaways" style="display:none;">			\
+    $(".page__heading:first").after('<div class="filter-content pinned-giveaways" style="display:none;">			\
 		<table class="filter_table">	\
 		<tr>	\
 		<td>	\
@@ -966,7 +1030,6 @@ if (path == '/') {
 		<div style="width: 0%;" class="ui-slider-range ui-widget-header ui-corner-all ui-slider-range-min"></div>	\
 		<span style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all" tabindex="1">	\
 		</span></div>	\
-		</div>	\
 		</td>	\
 		<td><div class="form__checkbox cb__three" save="esg_f_group">	\
 		<i class="fa fa-circle-o"' + (f_group === 0 ? "" : ' style="display:none"') + '></i>	\
@@ -988,7 +1051,7 @@ if (path == '/') {
 		<div style="width: 0%;" class="ui-slider-range ui-widget-header ui-corner-all ui-slider-range-min"></div>	\
 		<span style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all" tabindex="1">	\
 		</span></div>	\
-		</div></td>	\
+		</td>	\
 		<td><div class="form__checkbox cb__three" save="esg_f_regionrestricted">	\
 		<i class="fa fa-circle-o"' + (f_region === 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_region == 1 ? "" : ' style="display:none"') + '></i>		\
@@ -1009,7 +1072,6 @@ if (path == '/') {
 		<div style="width: 0%;" class="ui-slider-range ui-widget-header ui-corner-all ui-slider-range-min"></div>	\
 		<span style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all" tabindex="1">	\
 		</span></div>	\
-		</div>	\
 		</td>	\
 		<td><span style=\"float:right;margin-right:30px\">Hints:</span> \
 		</td> \
@@ -1019,7 +1081,7 @@ if (path == '/') {
 		<i class="fa fa-circle"></i> - Only	\
 		</td>		\
 		</tr>		\
-		</table>		\
+		</table></div>		\
 		');
     $('.form__slider_filter--level').slider({
         range: true,
@@ -1068,7 +1130,7 @@ if (path == '/') {
     });
     $(".cb__three").click(function() {
         var icon = $(this).find("i:visible");
-        var s = -1;
+        var s = 0;
         if ($(icon).hasClass("fa-circle-o")) {
             $(this).find(".fa-circle-o").hide();
             $(this).find(".fa-check-circle").show();
