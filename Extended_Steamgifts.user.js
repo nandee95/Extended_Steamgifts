@@ -1153,6 +1153,6 @@ if (path == '/') {
     });
 }
 
-if (Number(GM_getValue("esg_discussionstop", 1)) && ((path == '/' || path == "/giveaways/"))) {
+if (Number(GM_getValue("esg_discussionstop", 1)) && (path == '/' || path.match('/giveaways/'))) {
     $('.widget-container a[href="/discussions"]').closest('.widget-container').attr('style', 'margin-bottom: 20px; margin-top: 10px;').detach().prependTo('.pinned-giveaways__outer-wrap');
 }
