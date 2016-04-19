@@ -318,6 +318,7 @@ function display_options() {
     addToOptions("Scroll to top button", "esg_scrolltop", 1);
     addToOptions("Hide entered giveaways", "esg_hideentered", 0);
     addToOptions("Active discussions in sidebar", "esg_discussions", 1);
+    addToOptions("Discussions on top", "esg_discussionstop", 0);
     page.html("				\
 		<div class=\"page__heading\"> \
 		<div class=\"page__heading__breadcrumbs\">   \
@@ -1150,4 +1151,8 @@ if (path == '/') {
         GM_setValue($(this).attr("save"), s);
         $('.giveaway__row-outer-wrap').filter_ga();
     });
+}
+
+if (Number(GM_getValue("esg_discussionstop", 1)) && ((path == '/' || path == "/giveaways/"))) {
+    $('.widget-container a[href="/discussions"]').closest('.widget-container').attr('style', 'margin-bottom: 20px; margin-top: 10px;').detach().prependTo('.pinned-giveaways__outer-wrap');
 }
