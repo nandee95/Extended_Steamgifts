@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.1.3
+// @version		2.1.4
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -101,12 +101,18 @@ Changelog:
 - Added 2 new menuitems to the Discussions menu: Quizzes
 - Added 2 new menuitems to the Giveaways menu: Create Quiz
 - Small ESG menu modification
+2.1.4 (20-04-2016)
+- Fixed giveaway hiding
+- Small ESG menu modification
+- Added Search button (giveaway list)
+- Added ESG logo to the begining of the title bar (+version info)
 
 TODO:
 - Level bar
-- Bump all
-- Enter all
-
+- Bump all trades
+- Enter all (only in wishlist page)
+- DLC filter
+- Generate giveaway signature (hidden SG feature)
  */
 this.GM_getValue = function(key, def) {
     return localStorage[key] || def;
@@ -246,6 +252,8 @@ $(".nav__button:contains('Giveaways')").closest(".nav__button-container").find("
 <div class="nav__row__summary"><p class="nav__row__summary__name">Create quiz</p><p class="nav__row__summary__description">It\'s too hard</p></div></a>  \
 ');
 
+
+$("nav").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
 
 //Options
 if (path.match('^/account/')) {
@@ -671,6 +679,8 @@ $.fn.format_ga = function() {
 
         //Description
         $(ga).find(".giveaway__hide").after("<i class=\"giveaway__icon fa fa-file-text-o open--desc\"></i>");
+        //Search
+        $(ga).find(".giveaway__hide").after("<a href=\"https://www.steamgifts.com/giveaways/search?q="+encodeURI($(ga).find('.giveaway__heading__name').html())+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
 
         //Hide entered
         if (Number(GM_getValue("esg_hideentered", 0)) && entered) {
@@ -815,7 +825,7 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	<p class=\"nav__row__summary__description\">Open ESG steam group        \</p>		\
 	</div>		\
 	</a>		\
-	<a class=\"nav__row\" href=\"/discussions/search?q=extended+steamgifts\">		\
+	<a class=\"nav__row\" href=\"/discussion/qbPEr\">		\
 	<i class=\"icon-blue fa fa-fw fa-comment\"></i>		\
 	<div class=\"nav__row__summary\">		\
 	<p class=\"nav__row__summary__name\">Dicussion</p>		\
@@ -839,15 +849,15 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	<a class=\"nav__row\" target=\"blank\" href=\"https://github.com/nandee95/Extended_Steamgifts\">		\
 	<i class=\"icon-green fa fa-fw fa-github\"></i>		\
 	<div class=\"nav__row__summary\">		\
-	<p class=\"nav__row__summary__name\">Source Code on GitHub</p>		\
-	<p class=\"nav__row__summary__description\">Extended Steamgifts " + ver + "</p>		\
+	<p class=\"nav__row__summary__name\">Source Code</p>		\
+	<p class=\"nav__row__summary__description\">GitHub</p>		\
 	</div>		\
 	</a>		\
 	<a class=\"nav__row\" href=\"/account/profile/sync#esg_about\">		\
 	<i class=\"fa fa-fw fa-info-circle\" style=\"color:lightblue\"></i>		\
 	<div class=\"nav__row__summary\">		\
 	<p class=\"nav__row__summary__name\">About</p>		\
-	<p class=\"nav__row__summary__description\"><b style=\"font-weight:bold\">If you like this addon please<br>think about a donation!</b>        \
+	<p class=\"nav__row__summary__description\">Author / Contact / Donations        \
     </p>		\
 	</div>		\
 	</a>		\
@@ -868,7 +878,7 @@ $(document).on('click', '.trigger-popup', function() {
 });
 
 $(document).on('click', '.giveaway__hide', function () {
-	$(".popup--hide-games input[name=game_id]").val($(this).attr("data-game-id")),
+	$(".popup--hide-games input[name=game_id]").val($(this).closest(".giveaway__row-outer-wrap").attr("data-game-id"));
 	$(".popup--hide-games .popup__heading__bold").text($(this).closest("h2").find(".giveaway__heading__name").text())
 	
 	//Use AJAX when hiding GAs
