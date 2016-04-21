@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.1.4
+// @version		2.1.5
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -106,13 +106,18 @@ Changelog:
 - Small ESG menu modification
 - Added Search button (giveaway list)
 - Added ESG logo to the begining of the title bar (+version info)
+2.1.5
+- Filter Local Storage Self-Fix
+- Added Giveaway Signature Generator
+- Added Search urls to the Community Wishlist Titles
+- Fixed broken links in ESG menu
 
 TODO:
 - Level bar
 - Bump all trades
 - Enter all (only in wishlist page)
 - DLC filter
-- Generate giveaway signature (hidden SG feature)
+- Copies filter
  */
 this.GM_getValue = function(key, def) {
     return localStorage[key] || def;
@@ -254,6 +259,11 @@ $(".nav__button:contains('Giveaways')").closest(".nav__button-container").find("
 
 
 $("nav").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
+
+//Giveaway Signature Generator
+if (path.match('^/giveaway/')) {
+    $(".sidebar").append('<h3 class="sidebar__heading">Signature</h3><div style="text-align:center"><img src="'+window.location+'/signature.png" width="280px" height="53px"><br>HTML code (Websites & Blogs):<input width="280px" onclick="this.select();" value=\'<a href="'+window.location+'"><img src="'+window.location+'/signature.png"></a>\'><br>BB code (Forum):<br><input width="280px" onclick="this.select();" value=\'[url='+window.location+'][img]'+window.location+'/signature.png[/img][/url]\'><br>Direct link:<br><input width="280px" onclick="this.select();" value=\''+window.location+'/signature.png\'></div>')
+}
 
 //Options
 if (path.match('^/account/')) {
@@ -506,6 +516,13 @@ if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscrol
                     if ($('.table').length > 0) {
                         $('.table:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">' + pagename + '</a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1) + '</a></div></div><div class="table">' + $(source).find('.table').html() + '</div>');
                         check_entered_chances();
+                        if(path=="/giveaways/wishlist")
+                        {
+                            $(".table:last").find(".table__column__heading").each(function () {
+                                var title=$(this).html();
+                                $(this).html("<a href=\"/giveaways/search?q="+encodeURI(title)+"\">"+title+"</a>");
+                            });
+                        }
 
                     } else if ($(".giveaway__row-outer-wrap").length > 0) {
 
@@ -606,6 +623,16 @@ $.fn.filter_ga = function() {
             $(ga).show();
     });
 };
+
+//Community wishlist
+if(path=="/giveaways/wishlist")
+{
+    $(".table__column__heading").each(function () {
+        var title=$(this).html();
+        $(this).html("<a href=\"/giveaways/search?q="+encodeURI(title)+"\">"+title+"</a>");
+    });
+}
+
 //Giveaway function
 $.fn.format_ga = function() {
     return $(this).each(function() {
@@ -680,7 +707,7 @@ $.fn.format_ga = function() {
         //Description
         $(ga).find(".giveaway__hide").after("<i class=\"giveaway__icon fa fa-file-text-o open--desc\"></i>");
         //Search
-        $(ga).find(".giveaway__hide").after("<a href=\"https://www.steamgifts.com/giveaways/search?q="+encodeURI($(ga).find('.giveaway__heading__name').html())+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
+        $(ga).find(".giveaway__hide").after("<a href=\"/giveaways/search?q="+encodeURI($(ga).find('.giveaway__heading__name').html())+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
 
         //Hide entered
         if (Number(GM_getValue("esg_hideentered", 0)) && entered) {
@@ -825,13 +852,6 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	<p class=\"nav__row__summary__description\">Open ESG steam group        \</p>		\
 	</div>		\
 	</a>		\
-	<a class=\"nav__row\" href=\"/discussion/qbPEr\">		\
-	<i class=\"icon-blue fa fa-fw fa-comment\"></i>		\
-	<div class=\"nav__row__summary\">		\
-	<p class=\"nav__row__summary__name\">Dicussion</p>		\
-	<p class=\"nav__row__summary__description\">Steamgifts dicussion</p>		\
-	</div>		\
-	</a>		\
 	<a class=\"nav__row\" href=\"/account/profile/sync#esg_options\">		\
 	<i class=\"icon-grey fa fa-fw fa-cog\"></i>		\
 	<div class=\"nav__row__summary\">		\
@@ -863,7 +883,7 @@ $(".nav__button[href|=\"/about/faq\"]").closest(".nav__button-container").before
 	</a>		\
 	</div>		\
 	</div>		\
-	<a class=\"nav__button nav__button--is-dropdown\" href=\"/discussion/qbPEr/extended-steamgifts-browser-addon\">ESG</a>		\
+	<a class=\"nav__button nav__button--is-dropdown\" href=\"/discussion/qbPEr/\">ESG</a>		\
 	<div class=\"nav__button nav__button--is-dropdown-arrow\"><i class=\"fa fa-angle-down\"></i></div>		\
 	</div>");
 
@@ -1030,6 +1050,28 @@ if (path == '/') {
     var f_white = GM_getValue("esg_f_whitelist", 1);
     var f_region = GM_getValue("esg_f_regionrestricted", 1);
     var f_community = GM_getValue("esg_f_community", 1);
+    
+    //Self local storage fixing
+    if(f_group==-1)
+    {
+        GM_setValue("esg_f_group", 0);
+        f_group=0;
+    }
+    if(f_white==-1)
+    {
+        GM_setValue("esg_f_white", 0);
+        f_white=0;
+    }
+    if(f_region==-1)
+    {
+        GM_setValue("esg_f_region", 0);
+        f_region=0;
+    }
+     if(f_community==-1)
+    {
+        GM_setValue("esg_f_community", 0);
+        f_community=0;
+    }
 
     $(".page__heading:first").after('<div class="filter-content pinned-giveaways" style="display:none;">			\
 		<table class="filter_table">	\
@@ -1161,3 +1203,4 @@ if (path == '/') {
         $('.giveaway__row-outer-wrap').filter_ga();
     });
 }
+
