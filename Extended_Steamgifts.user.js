@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.1.5
+// @version		2.1.6
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -106,14 +106,20 @@ Changelog:
 - Small ESG menu modification
 - Added Search button (giveaway list)
 - Added ESG logo to the begining of the title bar (+version info)
-2.1.5
+2.1.5 (21-04-2016)
 - Filter Local Storage Self-Fix
 - Added Giveaway Signature Generator
 - Added Search urls to the Community Wishlist Titles
 - Fixed broken links in ESG menu
+2.1.6 (24-04-2016)
+- Added lever bar (included Dark Theme support)
+- Fixed giveaway signature generator
+- Added giveaway signature generator to options
+- Fixed chances on entered page
+- Fixed giveaway search url
+- Fixed hide entered giveaways (/giveaways/won page)
 
 TODO:
-- Level bar
 - Bump all trades
 - Enter all (only in wishlist page)
 - DLC filter
@@ -257,12 +263,17 @@ $(".nav__button:contains('Giveaways')").closest(".nav__button-container").find("
 <div class="nav__row__summary"><p class="nav__row__summary__name">Create quiz</p><p class="nav__row__summary__description">It\'s too hard</p></div></a>  \
 ');
 
+//Level bar
+var account=$(".nav__button-container:contains('Account')");
+var account_lv=Number($(account).find("span:nth-child(2)").attr("title"));
+$(account).css("box-shadow","inset "+(($(account).width()*(account_lv-Math.floor(account_lv))-2.5))+"px 0 5px rgba(0,255,0,0.075)");
 
 $("nav").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
 
 //Giveaway Signature Generator
-if (path.match('^/giveaway/')) {
-    $(".sidebar").append('<h3 class="sidebar__heading">Signature</h3><div style="text-align:center"><img src="'+window.location+'/signature.png" width="280px" height="53px"><br>HTML code (Websites & Blogs):<input width="280px" onclick="this.select();" value=\'<a href="'+window.location+'"><img src="'+window.location+'/signature.png"></a>\'><br>BB code (Forum):<br><input width="280px" onclick="this.select();" value=\'[url='+window.location+'][img]'+window.location+'/signature.png[/img][/url]\'><br>Direct link:<br><input width="280px" onclick="this.select();" value=\''+window.location+'/signature.png\'></div>')
+if (path.match('^/giveaway/')&&Number(GM_getValue("esg_gsg", 1))) {
+    var gacode=/\/(?:.*?)\/(.*?)\/(?:.*)/.exec(path)[1];
+    $(".sidebar").append('<h3 class="sidebar__heading">Signature</h3><div style="text-align:center"><img src="https://steamgifts.com/giveaway/'+gacode+'/signature.png" width="280px" height="53px"><br>HTML code (Websites & Blogs):<input width="280px" onclick="this.select();" value=\'<a href="https://steamgifts.com/giveaway/'+gacode+'/"><img src="https://steamgifts.com/giveaway/'+gacode+'/signature.png"></a>\'><br>BB code (Forum):<br><input width="280px" onclick="this.select();" value=\'[url=https://steamgifts.com/giveaway/'+gacode+'/][img]https://steamgifts.com/giveaway/'+gacode+'/signature.png[/img][/url]\'><br>Direct link:<br><input width="280px" onclick="this.select();" value=\'https://steamgifts.com/giveaway/'+gacode+'/signature.png\'></div>')
 }
 
 //Options
@@ -336,6 +347,7 @@ function display_options() {
     addToOptions("Scroll to top button", "esg_scrolltop", 1);
     addToOptions("Hide entered giveaways", "esg_hideentered", 0);
     addToOptions("Active discussions in sidebar", "esg_discussions", 1);
+    addToOptions("Giveaway Signature Generator", "esg_gsg", 1);
     page.html("				\
 		<div class=\"page__heading\"> \
 		<div class=\"page__heading__breadcrumbs\">   \
@@ -696,21 +708,21 @@ $.fn.format_ga = function() {
 				</form>");
         }
 
-        //Mark new giveaways
+        //Description
+        $(ga).find(".giveaway__hide").after("<i class=\"giveaway__icon fa fa-file-text-o open--desc\"></i>");
+        //Search
+        $(ga).find(".giveaway__hide").after("<a href=\"/giveaways/search?q="+encodeURI($(ga).find('.giveaway__heading__name').text())+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
+
+        //Marks
         if (Number(GM_getValue("esg_h_new", 1)) && newga) {
             $(ga).find(".giveaway__heading__name").prepend('<font color="#BFBF00">[NEW]</font> ');
         }
         if (Number(GM_getValue("esg_h_new", 1)) && req === 0 && $(ga).find('.giveaway__heading__name').html() != 'Invite Only') {
             $(ga).find(".giveaway__heading__name").prepend('<font color="#00BFBF">[FREE]</font> ');
         }
-
-        //Description
-        $(ga).find(".giveaway__hide").after("<i class=\"giveaway__icon fa fa-file-text-o open--desc\"></i>");
-        //Search
-        $(ga).find(".giveaway__hide").after("<a href=\"/giveaways/search?q="+encodeURI($(ga).find('.giveaway__heading__name').html())+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
-
+        
         //Hide entered
-        if (Number(GM_getValue("esg_hideentered", 0)) && entered) {
+        if (Number(GM_getValue("esg_hideentered", 0)) && entered && path!=$(".nav__avatar-outer-wrap").attr('href')+"/giveaways/won") {
             $(ga).addClass("is-hidden");
         }
     });
@@ -797,12 +809,12 @@ if (GM_getValue("esg_refresh", 0)) {
 function check_entered_chances()
 {
     if (path.match('^/giveaways/entered')&&Number(GM_getValue("esg_chances", 1))) {
-        $(".table:last").find(".table__column--width-small:first").before('<div class="table__column--width-small text-center">Chances</div>');
+        $(".table:last").find(".table__column--width-small:first").before('<div class="table__column--width-small text-center">Chance</div>');
         $(".table:last").find(".table__row-outer-wrap").each(function () {
             var title=$(this).find('.table__column__heading').html();
             var copies=1;
-            if(title.indexOf("Copies")!=-1) copies=title.match(/(?:.*)\(([0-9]{1,5}) Copies\)/)[1];
-            var entries=$(this).find(".table__column--width-small:first").html().replace(/\,/g, '');
+            if(title.indexOf("Copies")!=-1) copies=Number(title.match(/(?:.*)\(([0-9\,]{1,5}) Copies\)/)[1].replace(/,/g, ''));
+            var entries=$(this).find(".table__column--width-small:first").html().replace(/,/g, '');
             var chance = 0;
             if (entries <= 0)
                 chance = 100;
@@ -1050,28 +1062,6 @@ if (path == '/') {
     var f_white = GM_getValue("esg_f_whitelist", 1);
     var f_region = GM_getValue("esg_f_regionrestricted", 1);
     var f_community = GM_getValue("esg_f_community", 1);
-    
-    //Self local storage fixing
-    if(f_group==-1)
-    {
-        GM_setValue("esg_f_group", 0);
-        f_group=0;
-    }
-    if(f_white==-1)
-    {
-        GM_setValue("esg_f_white", 0);
-        f_white=0;
-    }
-    if(f_region==-1)
-    {
-        GM_setValue("esg_f_region", 0);
-        f_region=0;
-    }
-     if(f_community==-1)
-    {
-        GM_setValue("esg_f_community", 0);
-        f_community=0;
-    }
 
     $(".page__heading:first").after('<div class="filter-content pinned-giveaways" style="display:none;">			\
 		<table class="filter_table">	\
@@ -1084,15 +1074,15 @@ if (path == '/') {
 		</span></div>	\
 		</td>	\
 		<td><div class="form__checkbox cb__three" save="esg_f_group">	\
-		<i class="fa fa-circle-o"' + (f_group === 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_group <= 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_group == 1 ? "" : ' style="display:none"') + '></i>		\
-		<i class="fa fa-circle"' + (f_group == 2 ? "" : ' style="display:none"') + '></i> Group	\
+		<i class="fa fa-circle"' + (f_group >= 2 ? "" : ' style="display:none"') + '></i> Group	\
 		</div>\
 		</td>		\
 		<td><div class="form__checkbox cb__three" save="esg_f_whitelist">	\
-		<i class="fa fa-circle-o"' + (f_white === 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_white <= 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_white == 1 ? "" : ' style="display:none"') + '></i>		\
-		<i class="fa fa-circle"' + (f_white == 2 ? "" : ' style="display:none"') + '></i> Whitelist	\
+		<i class="fa fa-circle"' + (f_white >= 2 ? "" : ' style="display:none"') + '></i> Whitelist	\
 		</div>\
 		</td>		\
 		</tr>		\
@@ -1105,15 +1095,15 @@ if (path == '/') {
 		</span></div>	\
 		</td>	\
 		<td><div class="form__checkbox cb__three" save="esg_f_regionrestricted">	\
-		<i class="fa fa-circle-o"' + (f_region === 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_region <= 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_region == 1 ? "" : ' style="display:none"') + '></i>		\
-		<i class="fa fa-circle"' + (f_region == 2 ? "" : ' style="display:none"') + '></i> Region restricted	\
+		<i class="fa fa-circle"' + (f_region >= 2 ? "" : ' style="display:none"') + '></i> Region restricted	\
 		</div>\
 		</td>		\
 		<td><div class="form__checkbox cb__three" save="esg_f_community">	\
-		<i class="fa fa-circle-o"' + (f_community === 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-circle-o"' + (f_community <= 0 ? "" : ' style="display:none"') + '></i>	\
 		<i class="fa fa-check-circle"' + (f_community == 1 ? "" : ' style="display:none"') + '></i>		\
-		<i class="fa fa-circle"' + (f_community == 2 ? "" : ' style="display:none"') + '></i> Community Voted	\
+		<i class="fa fa-circle"' + (f_community >= 2 ? "" : ' style="display:none"') + '></i> Community Voted	\
 		</div>\
 		</td>		\
 		</tr>		\
