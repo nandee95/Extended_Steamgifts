@@ -203,7 +203,7 @@ bottom:45px; \
 width:" + ($(".sidebar").width() - 40) + "px;\
 text-align:center;\
 }\
-</script> \
+</style> \
 ");
 
 //Read some values
