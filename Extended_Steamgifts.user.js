@@ -588,7 +588,7 @@ $.fn.filter_ga = function() {
         var copies = 1,
             e = 0;
         if (c.indexOf('Copies') > -1) {
-            copies = Number(c.substring(1, getPos(c, ' ', 1)));
+            copies = Number(c.substring(1, getPos(c, ' ', 1)).replace(',', ''));
         }
 
         var entered = $(ga).find('.giveaway__row-inner-wrap').hasClass('is-faded');
