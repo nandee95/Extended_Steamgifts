@@ -268,7 +268,7 @@ var account=$(".nav__button-container:contains('Account')");
 var account_lv=Number($(account).find("span:nth-child(2)").attr("title"));
 $(account).css("box-shadow","inset "+(($(account).width()*(account_lv-Math.floor(account_lv))-2.5))+"px 0 5px rgba(0,255,0,0.075)");
 
-$("nav").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
+$("header > nav").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
 
 //Giveaway Signature Generator
 if (path.match('^/giveaway/')&&Number(GM_getValue("esg_gsg", 1))) {
