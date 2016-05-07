@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.2
+// @version		2.2.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -124,14 +124,15 @@ Changelog:
 - Added container for giveaway signature generator (SGv2 Dark support)
 - Added giveaway marks to options
 - Added non-linear slider for chance filter
-- Added copies filter
-- Fixed click event on Entered ga page (Remove button)
+- Fixed click event on Entered page (Remove button)
 - Fixed broken titles in the discussions sidebar
 - Removed Trains from Discussions menu
 - Removed Quizzes from Discussions menu
 - Removed Enter button from invite only giveaways on profile page
 - Remade About page
 - Code cleanup
+2.2.1 (2015. 05. 07.)
+- Copies filter quick fix
  */
 
 /*jshint multistr: true */
@@ -216,6 +217,7 @@ $("body").prepend("										\
 {														\
     margin-top:10px;padding:20px;						\
 }														\
+.filter_table td { border:1px solid rgba(0,0,0,0.2); padding: 5px; } \
 </script>												\
 ");
 
@@ -665,7 +667,7 @@ $.fn.filter_ga = function() {
             $(ga).hide();
         else if (!(GM_getValue("esg_f_min_points", 0) <= req && req <= GM_getValue("esg_f_max_points", 100)))
             $(ga).hide();
-        else if(GM_getValue("esg_f_min_copies", 0) >= copies && (copies <= GM_getValue("esg_f_max_copies", 100000)|| GM_getValue("esg_f_max_copies", 100000)==100000))
+        else if(!(GM_getValue("esg_f_min_copies", 1) <= copies && (copies <= GM_getValue("esg_f_max_copies", 100000)|| GM_getValue("esg_f_max_copies", 100000)==100000)))
             $(ga).hide();
         else if ((GM_getValue("esg_f_group", 1) === 0 && group) || (GM_getValue("esg_f_group", 1) == 2 && !group))
             $(ga).hide();
@@ -1137,7 +1139,7 @@ if (path == '/') {
     var f_white = GM_getValue("esg_f_whitelist", 1);
     var f_region = GM_getValue("esg_f_regionrestricted", 1);
     var f_community = GM_getValue("esg_f_community", 1);
-    var f_c_min = GM_getValue("esg_f_min_copies", 0);
+    var f_c_min = GM_getValue("esg_f_min_copies", 1);
     var f_c_max = GM_getValue("esg_f_max_copies", 100000);
 
     $(".page__heading:first").after('<div class="filter-content pinned-giveaways" style="display:none;">			\
