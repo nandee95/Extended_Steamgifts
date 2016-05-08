@@ -218,7 +218,7 @@ $("body").prepend("										\
     margin-top:10px;padding:20px;						\
 }														\
 .filter_table td { border:1px solid rgba(0,0,0,0.2); padding: 5px; } \
-</script>												\
+</style>												\
 ");
 
 //Read some values
@@ -759,7 +759,7 @@ $.fn.format_ga = function() {
         //Description
         $(ga).find(".giveaway__hide").after("<i class=\"giveaway__icon fa fa-file-text-o open--desc\"></i>");
         //Search
-        $(ga).find(".giveaway__hide").after("<a href=\"/giveaways/search?q="+encodeURI($(ga).find('.giveaway__heading__name').text())+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
+        $(ga).find(".giveaway__hide").after("<a href=\"/giveaways/search?q="+encodeURIComponent(title.replace('...', ''))+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
 
         //Marks
         if (Number(GM_getValue("esg_gamark", 1))) {
