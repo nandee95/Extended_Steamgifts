@@ -6,19 +6,16 @@ This is an userscript for steamgifts.com It helps you to use this website faster
 
 <a href="http://steamcommunity.com/groups/extendedsg">Steam Group</a>
 
-<b>Supoort:</b><br>
-It's fully compatible with the new site, almost every browsers.
-
 <b>Features:</b>
 * Add Enter button every active giveaways (list, real-time update)
-* Display chances for every giveaway (list)
-* Highlight your wishlisted giveaways (list)
-* Endless scrolling
-* Place the header to a fixed location
+* Display chances for every giveaway (list, also on entered ga page)
+* Endless scrolling (with a lot of additional features)
+* Fixed header
 * Jump to top button at the bottom right corner
-* Update point every 2 seconds
-* Options (You can turn on/off almost everything)
+* Update point every 60 seconds
+* Options
 * Hide entered giveaways
+* Automatically display images
 * SGv2 Dark Theme support
 
 <b>Authors:</b>
