@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.2.1
+// @version		2.2.2
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -132,7 +132,9 @@ Changelog:
 - Remade About page
 - Code cleanup
 2.2.1 (2015. 05. 07.)
-- Copies filter quick fix
+- Fixed copies filter
+2.2.2 (2015. 05. 13.)
+- Fixed giveaway search button
  */
 
 /*jshint multistr: true */
