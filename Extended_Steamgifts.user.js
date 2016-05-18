@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.2.3b
+// @version		2.2.4
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -141,6 +141,8 @@ Changelog:
 - Advanced Search
 - Removed border from filter menu
 - Fixed wrong dates in the changelog
+2.2.4 (2016. 05.18)
+- Removed uncompleted features
 
 Upcoming features:
 - Advanced search
