@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.2.2
+// @version		2.2.3
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -116,7 +116,7 @@ Changelog:
 - Fixed chances on entered page
 - Fixed giveaway search url
 - Fixed hide entered giveaways (/giveaways/won page)
-2.2 (2015. 05. 07.)
+2.2 (2016. 05. 07.)
 - Sightly brighter level bar
 - Added auto display images option (disabled by default)
 - Added Enter all button on Wishlist page
@@ -131,10 +131,22 @@ Changelog:
 - Removed Enter button from invite only giveaways on profile page
 - Remade About page
 - Code cleanup
-2.2.1 (2015. 05. 07.)
+2.2.1 (2016. 05. 07.)
 - Fixed copies filter
-2.2.2 (2015. 05. 13.)
+2.2.2 (2016. 05. 13.)
 - Fixed giveaway search button
+2.2.3 (2016. 05.18)
+- Auto scroll rules applied if the viewed page has no pagination
+- Active discussions in sidebar appears in every giveaway page
+- Advanced Search
+- Removed border from filter menu
+- Fixed wrong dates in the changelog
+
+Upcoming features:
+- Advanced search
+
+ToDo:
+- Display messages after trade bump
  */
 
 /*jshint multistr: true */
@@ -217,9 +229,15 @@ $("body").prepend("										\
 }														\
 .filter-content											\
 {														\
-    margin-top:10px;padding:20px;						\
+    margin-top:10px;									\
+    padding:5px;										\
 }														\
-.filter_table td { border:1px solid rgba(0,0,0,0.2); padding: 5px; } \
+.filter_table td										\
+{														\
+    padding: 2px;										\
+} 														\
+.advsearch_number										\
+{ width:100px;}						\
 </style>												\
 ");
 
@@ -227,7 +245,7 @@ $("body").prepend("										\
 var xsrf = $('input[type=hidden][name=xsrf_token]').val();
 var loggedin = ($('.nav__sits').length > 0) ? false : true;
 var lastpage = ($(".pagination__navigation:contains('Next')").length === 0);
-var currentpage = Number($('.pagination__navigation').find('.is-selected').attr('data-page-number'));
+var currentpage = Number($('.pagination__navigation').find('.is-selected').attr('data-page-number')?$('.pagination__navigation').find('.is-selected').attr('data-page-number'):1);
 var hash = $(location).attr('hash');
 var ver = GM_info.script.version;
 var username = $(".nav__avatar-outer-wrap").attr("href").replace("/user/", "");
@@ -451,7 +469,7 @@ if(window.location=="https://www.steamgifts.com/giveaways/search?type=wishlist")
 }
 
 //Active Discussions
-if ((path == '/' || path == "/giveaways/") && Number(GM_getValue("esg_autoscroll", 1))) {
+if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
     if ($(".page__heading__breadcrumbs:contains('Active Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
         var c1 = "";
         $(".page__heading__breadcrumbs:contains('Active Discussions')").closest(".page__heading").next()
@@ -534,8 +552,54 @@ if ((path == '/' || path == "/giveaways/") && Number(GM_getValue("esg_autoscroll
 
 }
 
+//Advanced Search
+function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};
+
+if (path.match('^/giveaway/')|| path == '/')
+{
+    $(".sidebar__search-container").before('<h3 class="sidebar__heading">Advanced Search</h3>');
+    var s_lv_min=getUrlParameter("level_min")?Math.max(Math.min(getUrlParameter("level_min"),10),0):0;
+    var s_lv_max=getUrlParameter("level_max")?Math.max(Math.min(getUrlParameter("level_max"),10),0):10;
+    $(".sidebar__search-container").after('<div class="sidebar__navigation"><form method="GET"> \
+		Level <span class="s_lv">' + (s_lv_min == s_lv_max ? s_lv_min : s_lv_min + " - " + s_lv_max) + '</span>			\
+		<div class="form__slider form__slider_search--level ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">	\
+		<div style="width: 0%;" class="ui-slider-range ui-widget-header ui-corner-all ui-slider-range-min"></div>	\
+		<span style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all" tabindex="1" width="100%">	\
+		</span></div>	\
+');
+    $('.form__slider_search--level').slider({
+        range: true,
+        values: [s_lv_min, s_lv_max],
+        min: 0,
+        max: 10,
+        slide: function(event, ui) {
+            $(".s_lv").text(ui.values[0] == ui.values[1] ? ui.values[0] : ui.values[0] + " - " + ui.values[1]);
+        }
+    });    
+
+}
+
+//Remove the paddings if adblock enabled
+if($(".sidebar__mpu").height()<10)
+    $(".sidebar__mpu").hide();
+if($(".leaderboard").height()<10)
+    $(".leaderboard").hide();
+
 //Auto scroll
-if ($(".pagination__navigation").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
+if ($(".pagination").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
     var loading = false;
     $('.widget-container--margin-top').remove();
     $('.giveaway__row-outer-wrap:last').parent().after('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/loading.gif" class="page-loading"></div>');
@@ -847,7 +911,7 @@ function update_gas(p) {
 }
 
 //Refresh points every min
-if (GM_getValue("esg_refresh", 0)) {
+if (Number(GM_getValue("esg_refresh", 0))) {
     setInterval(function() {
         $.ajax({
             url: "/ajax.php",
