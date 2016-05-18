@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.2.3
+// @version		2.2.3b
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -553,6 +553,7 @@ if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && N
 }
 
 //Advanced Search
+/*
 function getUrlParameter(sParam) {
     var sPageURL = decodeURIComponent(window.location.search.substring(1)),
         sURLVariables = sPageURL.split('&'),
@@ -591,7 +592,7 @@ if (path.match('^/giveaway/')|| path == '/')
     });    
 
 }
-
+*/
 //Remove the paddings if adblock enabled
 if($(".sidebar__mpu").height()<10)
     $(".sidebar__mpu").hide();
