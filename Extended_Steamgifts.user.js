@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.2.4
+// @version		2.2.5
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -135,20 +135,20 @@ Changelog:
 - Fixed copies filter
 2.2.2 (2016. 05. 13.)
 - Fixed giveaway search button
-2.2.3 (2016. 05.18)
+2.2.3 (2016. 05. 18.)
 - Auto scroll rules applied if the viewed page has no pagination
 - Active discussions in sidebar appears in every giveaway page
 - Advanced Search
 - Removed border from filter menu
 - Fixed wrong dates in the changelog
-2.2.4 (2016. 05.18)
+2.2.4 (2016. 05. 18.)
 - Removed uncompleted features
+2.2.5 (2016. 05. 19.)
+- Fixed broken chances on entered page
+- Fixed problem with header errors
 
 Upcoming features:
 - Advanced search
-
-ToDo:
-- Display messages after trade bump
  */
 
 /*jshint multistr: true */
@@ -681,10 +681,9 @@ if (Number(GM_getValue("esg_fixedheader", 1))) {
     $("header").css("width", "100%");
     $("header").css("z-index", "100");
     $("header").css("top", "0");
-    if ($(".featured__container").length > 0)
-        $(".featured__container").css("margin-top", "38px");
-    else
-        $(".page__outer-wrap").css("margin-top", "38px").css("right", "0");
+    if($(".header__error").length > 0)                $(".header__error").css("margin-top", "38px");
+    else if ($(".featured__container").length > 0)    $(".featured__container").css("margin-top", "38px");
+    else                                              $(".page__outer-wrap").css("margin-top", "38px").css("right", "0");
 }
 
 //Filter
@@ -939,7 +938,7 @@ function check_entered_chances()
         $(".table:last").find(".table__row-outer-wrap").each(function () {
             var title=$(this).find('.table__column__heading').html();
             var copies=1;
-            if(title.indexOf("Copies")!=-1) copies=Number(title.match(/(?:.*)\(([0-9\,]{1,5}) Copies\)/)[1].replace(/,/g, ''));
+            if(title.indexOf("Copies")!=-1) copies=Number(title.match(/(?:.*)\(([0-9\,]{1,7}) Copies\)/)[1].replace(/,/g, ''));
             var entries=$(this).find(".table__column--width-small:first").html().replace(/,/g, '');
             var chance = 0;
             if (entries <= 0)
