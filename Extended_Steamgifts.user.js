@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.2.5
+// @version		2.2.6
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -146,6 +146,9 @@ Changelog:
 2.2.5 (2016. 05. 19.)
 - Fixed broken chances on entered page
 - Fixed problem with header errors
+2.2.6 (2016. 05. 20.)
+- Syntax fixes
+- Removed Enter all button (because it's against the ToS, still available here: )
 
 Upcoming features:
 - Advanced search
@@ -457,17 +460,6 @@ function display_about() {
         <div class=\"form__row__indent\"><a href=\"http://steamcommunity.com/id/nandee95\">Steam profile</a><br><a href=\"https://www.steamgifts.com/user/Nandee\">SteamGifts profile</a></div></div>\
         </div> \
 		");
-}
-
-//Enter all (wishlist)
-if(window.location=="https://www.steamgifts.com/giveaways/search?type=wishlist")
-{
-    $(".page__heading__breadcrumbs:first").after('<div class="sidebar__entry-insert enterall" style="cursor:pointer"><i style="margin-left:5px;display:inline" class="fa fa-plus-circle"> Enter all</div>');
-    $(document).on('click', '.enterall', function() {
-        $(".sidebar__entry-insert:not(.is-hidden):not(.enterall)").each(function () {
-            if($(this).closest('.pinned-giveaways__inner-wrap').length===0) $(this).trigger('click');
-        });
-    });
 }
 
 //Active Discussions
@@ -871,7 +863,7 @@ setTimeout(function() {
                 {
                     if(t.hasClass("sidebar__entry-insert"))t.closest("form").find(".sidebar__entry-delete").removeClass("is-hidden")
                     else if(t.hasClass("sidebar__entry-delete")) t.closest("form").find(".sidebar__entry-insert").removeClass("is-hidden")
-                } else if("error" === e.type) t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg);
+                } else if("error" === e.type) t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '"><i class="fa fa-exclamation-circle"></i> ' + e.msg + "</a>" : '<i class="fa fa-exclamation-circle"></i> ' + e.msg);
                 $(".live__entry-count").text(e.entry_count);
                 $(".nav__points").text(e.points);
                 if (Number(GM_getValue("esg_hideentered", 0)) && "success" === e.type) {
