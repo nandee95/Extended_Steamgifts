@@ -302,7 +302,7 @@ var account_lv=Number($(account).find("span:nth-child(2)").attr("title"));
 $(account).css("box-shadow","inset "+(($(account).width()*(account_lv-Math.floor(account_lv))-2.5))+"px 0 5px rgba(100,255,100,0.1)");
 
 //ESG icon
-$(".nav__left-container").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" width="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
+$("header .nav__left-container").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" width="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
 
 //Giveaway Signature Generator
 if (path.match('^/giveaway/')&&Number(GM_getValue("esg_gsg", 1))) {
@@ -969,7 +969,7 @@ if (Number(GM_getValue("esg_scrolltop", 1))) {
 }
 
 //ESG menu
-$(".nav__left-container").append("	\
+$("header .nav__left-container").append("	\
 	<div class=\"nav__button-container\">		\
 	<div class=\"nav__relative-dropdown is-hidden\">		\
 	<div class=\"nav__absolute-dropdown\">		\
