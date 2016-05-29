@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.1
+// @version		2.3.2
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -149,7 +149,7 @@ Changelog:
 2.2.6 (2016. 05. 20.)
 - Syntax fixes
 - Removed Enter all button (because it's against the ToS, still available here: )
-2.3 (2016. 05. 27.)
+2.3 (2016. 05. 28.)
 - Added advanced comment editing
 - Added featured giveaway hiding option(disabled by default)
 - Added embedded youtube and vimeo videos
@@ -166,13 +166,15 @@ Changelog:
 - Fixed auto scroll on Bundle Games page
 - Fixed auto scroll on messages page
 - Code cleanup (multiple spaces replaced with tabs, multiline strings)
-2.3.1 (2016. 05. 28.)
+2.3.1 (2016. 05. 29.)
 - Fixed vimeo embedded videos
 - Fixed advanced comment editor
 - Added headings and horizontal reference to the comment editor
 - Added comment formatting for giveaway descriptions
 - Added comment editor to the new discussion and new trade pages
 - Modified About page
+2.3.2 (2016. 05. 29.)
+- Quick fix
 
 TODO:
 - Advanced search
@@ -1156,6 +1158,7 @@ check_entered_chances();
 //Comment formatting
 $.fn.format_comment = function() {
     if(!Number(GM_getValue("esg_comment",1))) return $(this);
+    
 	return $(this).each(function() {
 			$(this).find(".comment__toggle-attached").remove();
 			$(this).find("img").removeClass("is-hidden");
@@ -1166,7 +1169,8 @@ $.fn.format_comment = function() {
 			$(this).html(text);
 	});
 };
-$(".comment,.page__description").format_comment();
+$(".comment").find("div[class='comment__description markdown markdown--resize-body']").format_comment();
+$(".page__description").format_comment();
 
 //Scroll to top
 if (Number(GM_getValue("esg_scrolltop", 1))) {
