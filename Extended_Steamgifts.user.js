@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3
+// @version		2.3.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -149,7 +149,7 @@ Changelog:
 2.2.6 (2016. 05. 20.)
 - Syntax fixes
 - Removed Enter all button (because it's against the ToS, still available here: )
-2.3 (2016. 05. 28.)
+2.3 (2016. 05. 27.)
 - Added advanced comment editing
 - Added featured giveaway hiding option(disabled by default)
 - Added embedded youtube and vimeo videos
@@ -166,6 +166,13 @@ Changelog:
 - Fixed auto scroll on Bundle Games page
 - Fixed auto scroll on messages page
 - Code cleanup (multiple spaces replaced with tabs, multiline strings)
+2.3.1 (2016. 05. 28.)
+- Fixed vimeo embedded videos
+- Fixed advanced comment editor
+- Added headings and horizontal reference to the comment editor
+- Added comment formatting for giveaway descriptions
+- Added comment editor to the new discussion and new trade pages
+- Modified About page
 
 TODO:
 - Advanced search
@@ -504,7 +511,7 @@ function display_about() {
 		</div></div>	\
 		<div class=\"form__rows\"><div class=\"form__row\">	\
 		<div class=\"form__heading\"><div class=\"form__heading__number\">1.</div><div class=\"form__heading__text\">Extended Steamgifts " + ver + "</div></div>	\
-		<div class=\"form__row__indent\">Author: Nandee<br>Copyright: &copy; 2014-2016<br>Licensed under the MIT license<br><br>Steam group:<a href=\"http://steamcommunity.com/groups/extendedsg\">steamcommunity.com/groups/extendedsg</a>	\
+		<div class=\"form__row__indent markdown\">Author: Nandee<br>Copyright: &copy; 2014-2016<br>Licensed under the <a href=\"https://github.com/nandee95/Extended_Steamgifts/blob/master/LICENSE.md\" target=\_blank\">MIT license</a><br><br>Steam group:<a href=\"http://steamcommunity.com/groups/extendedsg\">steamcommunity.com/groups/extendedsg</a>	\
 		<br>GitHub: <a href=\"https://github.com/nandee95/Extended_Steamgifts\">github.com/nandee95/Extended_Steamgifts</a></div></div>\
 		<div class=\"form__row\">	\
 		<div class=\"form__heading\"><div class=\"form__heading__number\">2.</div><div class=\"form__heading__text\">About me:</div></div>	\
@@ -516,11 +523,12 @@ function display_about() {
 		Pledgie campaign:<br>	\
 		<a href='https://pledgie.com/campaigns/31484'><img alt='Click here to lend your support to: Extended Steamgifts and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/31484.png?skin_name=chrome' border='0' ></a><br>	\
 		Steam donate (tradeoffer):<br>	\
-		<a href='https://steamcommunity.com/tradeoffer/new/?partner=95793561&amp;token=HxnczDWg'><img src='https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png' style='max-width:100%;'></a>	\
-		</div></div>\
+		<a href='https://steamcommunity.com/tradeoffer/new/?partner=95793561&amp;token=HxnczDWg'><img src='https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png' style='max-width:100%;'></a><br>	\
+		Whitelist: \
+		<a href=\"https://www.steamgifts.com/user/Nandee\" target=\"_blank\"><div class=\"giveaway__columns\"><div style=\"width:130px !important\" class=\"giveaway__column--whitelist\" title=\"Whitelist\"><i class=\"fa fa-fw fa-heart\"></i> Whitelist</div></div></div>	\
 		<div class=\"form__row\">	\
 		<div class=\"form__heading\"><div class=\"form__heading__number\">4.</div><div class=\"form__heading__text\">Contact:</div></div>	\
-		<div class=\"form__row__indent\"><a href=\"http://steamcommunity.com/id/nandee95\">Steam profile</a><br><a href=\"https://www.steamgifts.com/user/Nandee\">SteamGifts profile</a></div></div>\
+		<div class=\"form__row__indent markdown\"><a href=\"http://steamcommunity.com/id/nandee95\" target=\"_blank\">Steam profile</a><br><a href=\"https://www.steamgifts.com/user/Nandee\" target=\"_blank\">SteamGifts profile</a></div></div>\
 		</div>	\
 		");
 }
@@ -613,14 +621,18 @@ if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && N
 if(Number(GM_getValue("esg_commenteditor",1)))
 {
     $(".comment__submit-button").prepend("<i class='fa fa-paper-plane'></i> ");
-    $(".comment__description").has("textarea").prepend('<div class="comment__tools">	\
+    $(".comment__description,.form__row__indent").has("textarea").prepend('<div class="comment__tools">	\
 <div class="comment__submit-button" title="Italic text" type="wrap" value="*"><i class="fa fa-italic fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Bold text" type="wrap" value="**"><i class="fa fa-bold fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Strikethrough" type="wrap" value="~~"><i class="fa fa-strikethrough fa-fw"></i></div>	\
 <div class="comment__submit-button serperator" title="List" type="list" value="* "><i class="fa fa-list-ul fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Spoiler" type="wrap" value="~"><i class="fa fa-stop fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Code" type="wrap" value="```"><i class="fa fa-code fa-fw"></i></div>	\
-<div class="comment__submit-button" title="Block quote" type="list" value=">"><i class="fa fa-quote-left fa-fw"></i></div>	\
+<div class="comment__submit-button" title="Block quote" type="list" value="> "><i class="fa fa-quote-left fa-fw"></i></div>	\
+<div class="comment__submit-button" title="Horizontal reference" type="insert" value="\n---\n"><i class="fa fa-minus fa-fw"></i></div>	\
+<div class="comment__submit-button serperator" title="Heading 1" type="list" value="# "><i class="fa fa-header fa-fw"></i>1</div>	\
+<div class="comment__submit-button" title="Heading 2" type="list" value="## "><i class="fa fa-header fa-fw"></i>2</div>	\
+<div class="comment__submit-button" title="Heading 3" type="list" value="### "><i class="fa fa-header fa-fw"></i>3</div>	\
 <div class="comment__submit-button serperator" title="Insert url" type="url"><i class="fa fa-globe fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Insert image" type="image"><i class="fa fa-image fa-fw"></i></div>	\
 <a href="https://www.steamgifts.com/about/comment-formatting" target="_blank"><div class="comment__submit-button serperator" title="Comment Formatting"><i class="fa fa-info fa-fw"></i></div></a>	\
@@ -629,7 +641,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
     $(document).on('click', '.comment__tools .comment__submit-button', function() {
         var type=$(this).attr("type");
         var val=$(this).attr("value");
-        var textarea=$(this).closest(".comment__summary").find("textarea");
+        var textarea=$(this).parent().parent().find("textarea");
         var text=$(textarea).val();
         var before=text.substr(0,$(textarea)[0].selectionStart);
         var between=text.substr($(textarea)[0].selectionStart,$(textarea)[0].selectionEnd-$(textarea)[0].selectionStart);
@@ -662,12 +674,32 @@ if(Number(GM_getValue("esg_commenteditor",1)))
             $(textarea)[0].selectionStart=before.length+val.length;
             $(textarea)[0].selectionEnd=$(textarea)[0].selectionStart+between.length;
         }
+        if(type=="insert")
+        {
+            $(textarea).val(before+val+after);
+            $(textarea)[0].selectionStart=before.length;
+            $(textarea)[0].selectionEnd=before.length+val.length;
+        }
         if(type=="list")
         {
+            var start=0;
+            var begin=false;
+            for(var i=$(textarea)[0].selectionStart;i>0;i--)
+            {
+                if(i==1) begin=true;
+                if(text[i]=="\n")
+                {
+                    start=i;
+                    break;
+                }
+            }
+            before=text.substr(0,start);
+            between=text.substr(start,$(textarea)[0].selectionEnd-start);
+            if(begin) between=val+between;
             between=between.replace(/\n/g, "\n"+val);
             if(before[before.length-1]=="\n") between=val+between;
             $(textarea).val(before+between+after);
-            $(textarea)[0].selectionStart=before.length;
+            $(textarea)[0].selectionStart=before.length+(between[0]=='\n'?1:0);
             $(textarea)[0].selectionEnd=$(textarea)[0].selectionStart+between.length;
         }
     });
@@ -783,10 +815,10 @@ if ($(".pagination").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
 						$(".giveaway__row-outer-wrap:last").parent().find(".giveaway__row-outer-wrap").format_ga().filter_ga();
 					} else if ($('.comments__entity').length > 0) { //messages page
                         $(".comments__entity:last").parent().after('<div class="page__heading"><div class="page__heading__breadcrumbs">'+pagename+' <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1) + '</a></div></div><div>' + $(source).find('.comments__entity:first').parent().html() + '</div>');
-						$(".comments__entity:last").parent().find(".comment").format_comment();
+						$(".comments__entity:last").parent().find(".comment").find("div[class='comment__description markdown markdown--resize-body']").format_comment();
 					} else if ($('.comments').length > 0) {
 						$('.comments:last').after('<div class="page__heading"><div class="page__heading__breadcrumbs"><a href="' + mainurl + '">Comments </a> <i class="fa fa-angle-right"></i> <a href="' + pageurl + '">Page ' + (page + 1) + '</a></div></div><div class="comments">' + $(source).find('.comments:last').html() + '</div>');
-						$(".comments:last").find(".comment").format_comment();
+						$(".comments:last").find(".comment").find("div[class='comment__description markdown markdown--resize-body']").format_comment();
 					}
 					page++;
 					rx = (regex_pagination_results).exec($(source).find(".pagination__results").html());
@@ -1123,21 +1155,18 @@ check_entered_chances();
 
 //Comment formatting
 $.fn.format_comment = function() {
+    if(!Number(GM_getValue("esg_comment",1))) return $(this);
 	return $(this).each(function() {
-        if(!Number(GM_getValue("esg_comment",1))) return;
-		$(this).find("div[class='comment__description markdown markdown--resize-body']").each(function () {
-			
 			$(this).find(".comment__toggle-attached").remove();
 			$(this).find("img").removeClass("is-hidden");
 			var text=$(this).html();
 			text=text.replace(/<a href="(?:https?:\/\/(?:www.)?)(?:youtube.com\/watch\?v=|youtu.be\/)([a-zA-Z0-9\_\-]+).+?">(.+?)<\/a>/g,'<iframe src="https://www.youtube.com/embed/$1" title="$2" class="global__image-outer-wrap" width="420" height="315"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
 			text=text.replace(/<a href="((?:https?:\/\/(?:www.)?)gleam.io\/[A-Za-z0-9]{5}\/?.+?)".+?>(.+?)<\/a>/g,'<div class="global__image-outer-wrap" style="width:545px !important;padding:5px 5px 5px 10px"><a class="e-gleam" href="$1" rel="nofollow">$2</a></div><script type="text/javascript" src="https://js.gleam.io/e.js" async="true"></script>');
-			text=text.replace(/<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{7})\/?.+?".+?>(.+?)<\/a>/g,'<iframe src="https://player.vimeo.com/video/$1" title="$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');			
+			text=text.replace(/<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(.+?)<\/a>/g,'<iframe src="https://player.vimeo.com/video/$1" title="$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');			
 			$(this).html(text);
-		});
 	});
 };
-$(".comment").format_comment();
+$(".comment,.page__description").format_comment();
 
 //Scroll to top
 if (Number(GM_getValue("esg_scrolltop", 1))) {
