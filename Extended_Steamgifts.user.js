@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.2
+// @version		2.3.3
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -175,6 +175,10 @@ Changelog:
 - Modified About page
 2.3.2 (2016. 05. 29.)
 - Quick fix
+2.3.3 (2016. 05. 29.)
+- Added chances on giveaway's page to opitions
+- Added an alert when you try to remove an entry and lose points
+- The urls with embedded videos not hidden anymore.
 
 TODO:
 - Advanced search
@@ -868,7 +872,7 @@ if($(".pinned-giveaways__button").length>0)
 }
 
 //Display chances on giveaway's page
-if(path.match("^/giveaway/"))
+if(Number(GM_getValue("esg_chances", 1))&&path.match("^/giveaway/"))
 {
     var entries=Number($(".live__entry-count").text().replace(/\,/,""));
     var copies=1;
@@ -881,7 +885,7 @@ if(path.match("^/giveaway/"))
 			chance = Math.round(copies / (entries) * 10000) / 100;
 		if (chance > 100)
 			chance = 100;
-    $(".featured__columns").find(".featured__column:first").after('<div class="featured__column"><i class="fa fa-fw fa-area-chart"></i> <span title="Odds: '+(entries/copies).toFixed(0)+':1">'+chance+'% chance</span></div>');
+    $(".featured__columns").find(".featured__column:first").after('<div class="featured__column"><i class="fa fa-fw fa-area-chart icon-yellow"></i> <span alt="Odds: '+(entries/copies).toFixed(0)+':1"'+(chance>=5?" style='font-weight:bold'":"")+'>'+chance+'% chance</span></div>');
 }
 
 //Filter
@@ -1003,7 +1007,7 @@ $.fn.format_ga = function() {
 		
 		//Display chances
 		if (Number(GM_getValue("esg_chances", 1)) && loggedin) {
-			$(ga).find('.giveaway__columns').find("div:first").after('<div><i class="fa fa-fw fa-area-chart"></i> <span title="Odds: '+(entries/copies).toFixed(0)+':1">' + chance.toFixed(2) + '% chance</span></div>');
+			$(ga).find('.giveaway__columns').find("div:first").after('<div><i class="fa fa-fw fa-area-chart"></i> <span title="Odds: '+(entries/copies).toFixed(0)+':1"'+(chance>=5?" style='font-weight:bold'":"")+'>' + chance.toFixed(2) + '% chance</span></div>');
 		}
 
 		//Enter/Remove button
@@ -1058,7 +1062,18 @@ setTimeout(function() {
 	$(".sidebar__entry-insert, .sidebar__entry-delete").unbind("click");
 	$(document).on('click', '.sidebar__entry-insert:not(.enterall), .sidebar__entry-delete', function() {
 		var t = $(this);
-		t.addClass("is-hidden");
+        if(t.hasClass("sidebar__entry-delete"))
+        {
+            var ga=$(t).closest(".giveaway__row-outer-wrap");
+            var points = Number($(ga).find(".giveaway__heading__thin:last").text().replace("(", "").replace(")", "").replace("P", ""));
+            var has = Number($(".nav__points").text());
+            if(has+points>300)
+            {
+                var diff=points+has-300
+                if(!confirm("Are you sure?\nYou will lose "+diff+" point"+(diff>1?"s":"")+" by doing this!")) return;
+            }
+        }
+        t.addClass("is-hidden");
 		t.closest("form").find(".sidebar__entry-loading").removeClass("is-hidden");
 		t.closest("form").find("input[name=do]").val(t.attr("data-do"));
 		$.ajax({
@@ -1163,9 +1178,9 @@ $.fn.format_comment = function() {
 			$(this).find(".comment__toggle-attached").remove();
 			$(this).find("img").removeClass("is-hidden");
 			var text=$(this).html();
-			text=text.replace(/<a href="(?:https?:\/\/(?:www.)?)(?:youtube.com\/watch\?v=|youtu.be\/)([a-zA-Z0-9\_\-]+).+?">(.+?)<\/a>/g,'<iframe src="https://www.youtube.com/embed/$1" title="$2" class="global__image-outer-wrap" width="420" height="315"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
+			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)(?:youtube.com\/watch\?v=|youtu.be\/)([a-zA-Z0-9\_\-]+).+?">(?:.+?)<\/a>)/g,'$1<iframe class="global__image-outer-wrap" src="https://www.youtube.com/embed/$2" width="420" height="315"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
 			text=text.replace(/<a href="((?:https?:\/\/(?:www.)?)gleam.io\/[A-Za-z0-9]{5}\/?.+?)".+?>(.+?)<\/a>/g,'<div class="global__image-outer-wrap" style="width:545px !important;padding:5px 5px 5px 10px"><a class="e-gleam" href="$1" rel="nofollow">$2</a></div><script type="text/javascript" src="https://js.gleam.io/e.js" async="true"></script>');
-			text=text.replace(/<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(.+?)<\/a>/g,'<iframe src="https://player.vimeo.com/video/$1" title="$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');			
+			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(?:.+?)<\/a>)/g,'$1<iframe src="https://player.vimeo.com/video/$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');			
 			$(this).html(text);
 	});
 };
