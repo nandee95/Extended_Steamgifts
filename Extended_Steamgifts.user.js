@@ -904,13 +904,7 @@ $.fn.filter_ga = function() {
 		e = e.substring(0, getPos(e, ' ', 1));
 		var entries = Number(e);
 
-		var chance = 0;
-		if (entries <= 0)
-			chance = 100;
-		else
-			chance = Math.round(copies / (entries + (entered?0:1)) * 10000) / 100;
-		if (chance > 100)
-			chance = 100;
+		var chance = get_chance(entries + (entered?0:1));
 
 		var req = Number($(ga).find(".giveaway__heading__thin:last").text().replace("(", "").replace(")", "").replace("P", ""));
 		var has = Number($(".nav__points").text());
@@ -977,13 +971,7 @@ $.fn.format_ga = function() {
 		e = e.substring(0, getPos(e, ' ', 1));
 		var entries = Number(e);
 
-		var chance = 0;
-		if (entries <= 0)
-			chance = 100;
-		else
-			chance = Math.round(copies / (entries + (entered?0:1)) * 10000) / 100;
-		if (chance > 100)
-			chance = 100;
+		var chance = get_chance(entries + (entered?0:1));
 
 		var time = $(ga).find(".giveaway__columns").find("div:first");
 		var active = (time.text().indexOf('ago') > -1) ? 0 : 1;
