@@ -49,7 +49,7 @@ Changelog:
 - Giveaway filter
 - Optimized code(removed unneded parts)
 - Community Voted sidebar
-- Rewrited Infinite scrolling 
+- Rewrited Infinite scrolling
 - Added infinite scrolling everywhere
 - Added [NEW] giveaway mark
 - Removed Giveaway Highlighting feature(becouse of bad performance & new filter feature)
@@ -742,7 +742,7 @@ if (path.match('^/giveaways/')|| path == '/')
 			$(".s_lv").text(ui.values[0] == ui.values[1] ? ui.values[0] : ui.values[0] + " - " + ui.values[1]);
 		}
 	});
-	
+
 	 $('.form__slider_search--entry').slider({
 		range: true,
 		values: [s_e_min, s_e_max],
@@ -780,7 +780,7 @@ if ($(".pagination").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
 	if ($('.comment--submit').length > 0) {
 		$('.comment--submit').insertAfter(".page__heading:contains('Comment')");
 	}
-	
+
 	$(document).on("click",".js__comment-reply-cancel",function () {
 		$('.comment--submit').insertAfter(".page__heading:contains('Comment')");
 	});
@@ -878,13 +878,7 @@ if(Number(GM_getValue("esg_chances", 1))&&path.match("^/giveaway/"))
     var copies=1;
     if($(".featured__heading").find(".featured__heading__small").length>1)
         copies=Number($(".featured__heading").find(".featured__heading__small:first").text().replace(/\,/,"").replace(" Copies)","").replace("(",""));
-    var chance = 0;
-		if (entries <= 0)
-			chance = 100;
-		else
-			chance = Math.round(copies / (entries) * 10000) / 100;
-		if (chance > 100)
-			chance = 100;
+    var chance = get_chance(entries);
     $(".featured__columns").find(".featured__column:first").after('<div class="featured__column"><i class="fa fa-fw fa-area-chart icon-yellow"></i> <span alt="Odds: '+(entries/copies).toFixed(0)+':1"'+(chance>=5?" style='font-weight:bold'":"")+'>'+chance+'% chance</span></div>');
 }
 
@@ -1000,11 +994,11 @@ $.fn.format_ga = function() {
 		var has = Number($(".nav__points").text());
 		var enough = req <= has ? true : false;
 		var user = $(ga).find(".giveaway__username").text();
-		
+
 		var title=$(ga).find(".giveaway__heading__name").text();
-		
+
 		var pinned=$(ga).closest(".pinned-giveaways__outer-wrap").length!==0?1:0;
-		
+
 		//Display chances
 		if (Number(GM_getValue("esg_chances", 1)) && loggedin) {
 			$(ga).find('.giveaway__columns').find("div:first").after('<div><i class="fa fa-fw fa-area-chart"></i> <span title="Odds: '+(entries/copies).toFixed(0)+':1"'+(chance>=5?" style='font-weight:bold'":"")+'>' + chance.toFixed(2) + '% chance</span></div>');
@@ -1147,6 +1141,19 @@ if (Number(GM_getValue("esg_refresh", 0))) {
 	}, 60000);
 }
 
+//Chance calculator
+function get_chance(entries)
+{
+	var chance = 0;
+	if (entries <= 0)
+		chance = 100;
+	else
+		chance = Math.round(copies / (entries) * 10000) / 100;
+	if (chance > 100)
+		chance = 100;
+	return chance;
+}
+
 //Chances on entered page
 function check_entered_chances()
 {
@@ -1157,13 +1164,7 @@ function check_entered_chances()
 			var copies=1;
 			if(title.indexOf("Copies")!=-1) copies=Number(title.match(/(?:.*)\(([0-9\,]{1,7}) Copies\)/)[1].replace(/,/g, ''));
 			var entries=$(this).find(".table__column--width-small:first").html().replace(/,/g, '');
-			var chance = 0;
-			if (entries <= 0)
-				chance = 100;
-			else
-				chance = Math.round(copies / (entries) * 10000) / 100;
-			if (chance > 100)
-				chance = 100;
+			var chance = get_chance(entries);
 			$(this).find(".table__column--width-small:first").before('<div class="table__column--width-small text-center">'+chance+'%</div>');
 		});
 	}
@@ -1173,14 +1174,14 @@ check_entered_chances();
 //Comment formatting
 $.fn.format_comment = function() {
     if(!Number(GM_getValue("esg_comment",1))) return $(this);
-    
+
 	return $(this).each(function() {
 			$(this).find(".comment__toggle-attached").remove();
 			$(this).find("img").removeClass("is-hidden");
 			var text=$(this).html();
 			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)(?:youtube.com\/watch\?v=|youtu.be\/)([a-zA-Z0-9\_\-]+).+?">(?:.+?)<\/a>)/g,'$1<iframe class="global__image-outer-wrap" src="https://www.youtube.com/embed/$2" width="420" height="315"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
 			text=text.replace(/<a href="((?:https?:\/\/(?:www.)?)gleam.io\/[A-Za-z0-9]{5}\/?.+?)".+?>(.+?)<\/a>/g,'<div class="global__image-outer-wrap" style="width:545px !important;padding:5px 5px 5px 10px"><a class="e-gleam" href="$1" rel="nofollow">$2</a></div><script type="text/javascript" src="https://js.gleam.io/e.js" async="true"></script>');
-			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(?:.+?)<\/a>)/g,'$1<iframe src="https://player.vimeo.com/video/$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');			
+			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(?:.+?)<\/a>)/g,'$1<iframe src="https://player.vimeo.com/video/$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
 			$(this).html(text);
 	});
 };
@@ -1258,7 +1259,7 @@ $("header .nav__left-container").append("	\
 	</div>");
 
 //Click event fix (part of original js)
-$(document).on('click',".table__remove-default",function() { 
+$(document).on('click',".table__remove-default",function() {
 	var e=$(this);
 	e.addClass("is-hidden");
 	e.siblings(".table__remove-loading").removeClass("is-hidden");
@@ -1519,7 +1520,7 @@ if (path == '/') {
 		</tr>		\
 		</table></div>		\
 		');
-	
+
 	Math.easeIn = function (val, min, max, strength) {
 		val /= max;
 		return (max-1)*Math.pow(val, strength) + min;
