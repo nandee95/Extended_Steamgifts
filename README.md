@@ -2,7 +2,7 @@
 
 <a target="_blank" href="https://steamcommunity.com/tradeoffer/new/?partner=95793561&amp;token=HxnczDWg"><img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png"></a>
 
-Pull requests only for bugs. Please do not create pull requests for new features.
+Pull requests only for bugs. Please do not create pull requests for new features.<br>
 The script isn't under active development anymore. However i'm trying to keep it working and up to date. 
 
 <b>Description:</b>
