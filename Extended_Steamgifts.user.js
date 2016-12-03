@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.5
+// @version		2.3.6
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -186,7 +186,7 @@ Changelog:
 - Added parsedown code to the giveaway signatures
 - Fixed some issues with text highlighting in the comment formatter
 - Added emoticons to comment formatter
-2.3.5 (2016. 12. 03.)
+2.3.6 (2016. 12. 03.)
 - Quick fix
  */
 
@@ -655,7 +655,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
 <div class="comment__submit-button" title="Insert image" type="image"><i class="fa fa-image fa-fw"></i></div>	\
 <a href="https://www.steamgifts.com/about/comment-formatting" target="_blank"><div class="comment__submit-button serperator" title="Comment Formatting"><i class="fa fa-info fa-fw"></i></div></a>	\
 </div>');
-    $(".comment__tools .comment__submit-button[type=emoticon]").after('<div class="emoticons" style="width:295px;height:165px;position:absolute;background:#e8eef6;border:1px solid #d0dced;border-radius:5px;padding:5px;display:none"> \
+    $(".comment__tools .comment__submit-button[type=emoticon]").after('<div class="emoticons" style="width:295px;height:165px;position:absolute;background:rgba(0,0,0,0.2);border:1px solid #d0dced;border-radius:5px;padding:5px;display:none"> \
 <div class="comment__submit-button" title=":)" type="insert" value="😀">😀</div>	\
 <div class="comment__submit-button" title=":D" type="insert" value="😃">😃</div>	\
 <div class="comment__submit-button" title="xD" type="insert" value="😆">😆</div>	\
@@ -708,7 +708,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
     $(document).on('click', '.comment__tools .comment__submit-button', function() {
         var type=$(this).attr("type");
         var val=$(this).attr("value");
-        var textarea=$(this).parent().parent().find("textarea");
+        var textarea=$(this).parent().parent().parent().find("textarea");
         var text=$(textarea).val();
         var before=text.substr(0,$(textarea)[0].selectionStart);
         var between=text.substr($(textarea)[0].selectionStart,$(textarea)[0].selectionEnd-$(textarea)[0].selectionStart);
