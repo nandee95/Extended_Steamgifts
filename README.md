@@ -2,6 +2,10 @@
 
 <a target="_blank" href="https://steamcommunity.com/tradeoffer/new/?partner=95793561&amp;token=HxnczDWg"><img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png"></a>
 
+Pull requests only for bugs. Please do not create pull requests for new features.
+The script isn't under active development anymore. However i'm trying to keep it working and up to date. 
+
+<b>Description:</b>
 This is an userscript for steamgifts.com It helps you to use this website faster and makes the browsing more confortable. It has a lot of cool features. Check out the screenshots!!
 
 <a href="http://steamcommunity.com/groups/extendedsg">Steam Group</a>
