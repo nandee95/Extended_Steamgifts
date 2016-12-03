@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.4
+// @version		2.3.5
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -186,6 +186,8 @@ Changelog:
 - Added parsedown code to the giveaway signatures
 - Fixed some issues with text highlighting in the comment formatter
 - Added emoticons to comment formatter
+2.3.5 (2016. 12. 03.)
+- Quick fix
  */
 
 /* jshint multistr: true */
@@ -706,7 +708,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
     $(document).on('click', '.comment__tools .comment__submit-button', function() {
         var type=$(this).attr("type");
         var val=$(this).attr("value");
-        var textarea=$(this).closest(".comment").find("textarea");
+        var textarea=$(this).parent().parent().find("textarea");
         var text=$(textarea).val();
         var before=text.substr(0,$(textarea)[0].selectionStart);
         var between=text.substr($(textarea)[0].selectionStart,$(textarea)[0].selectionEnd-$(textarea)[0].selectionStart);
