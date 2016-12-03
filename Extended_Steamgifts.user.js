@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.3
+// @version		2.3.4
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -179,9 +179,13 @@ Changelog:
 - Added chances on giveaway's page to opitions
 - Added an alert when you try to remove an entry and lose points
 - The urls with embedded videos not hidden anymore.
-
-TODO:
-- Advanced search
+2.3.4 (2016. 12. 03.)
+- Re-collapsable pinned giveaway feature has been rewritten and now works under Firefox
+- Added "Write a comment" button to the floating pagination
+- Removed the search button from the giveaway explorer
+- Added parsedown code to the giveaway signatures
+- Fixed some issues with text highlighting in the comment formatter
+- Added emoticons to comment formatter
  */
 
 /* jshint multistr: true */
@@ -288,6 +292,11 @@ $("body").prepend("	\
 	-webkit-user-select: none;	\
 	-moz-user-select: none;	\
 }	\
+.no-user-select	\
+{	\
+	-webkit-user-select: none;	\
+	-moz-user-select: none;	\
+}	\
 .serperator	\
 {	\
 	margin-left: 10px !important;	\
@@ -388,7 +397,7 @@ $("header .nav__left-container").prepend('<img src="https://raw.githubuserconten
 //Giveaway Signature Generator
 if (path.match('^/giveaway/')&&Number(GM_getValue("esg_gsg", 1))) {
 	var gacode=/\/(?:.*?)\/(.*?)\/(?:.*)/.exec(path)[1];
-	$(".sidebar:first").append('<h3 class="sidebar__heading">Signature</h3><div class="sidebar__navigation"><div style="text-align:center"><img src="https://steamgifts.com/giveaway/'+gacode+'/signature.png" width="280px" height="53px"><br>HTML code (Websites & Blogs):<input width="280px" onclick="this.select();" value=\'<a href="https://steamgifts.com/giveaway/'+gacode+'/"><img src="https://steamgifts.com/giveaway/'+gacode+'/signature.png"></a>\'><br>BB code (Forum):<br><input width="280px" onclick="this.select();" value=\'[url=https://steamgifts.com/giveaway/'+gacode+'/][img]https://steamgifts.com/giveaway/'+gacode+'/signature.png[/img][/url]\'><br>Direct link:<br><input width="280px" onclick="this.select();" value=\'https://steamgifts.com/giveaway/'+gacode+'/signature.png\'></div></div>');
+	$(".sidebar:first").append('<h3 class="sidebar__heading">Signature</h3><div class="sidebar__navigation"><div style="text-align:center"><img src="https://steamgifts.com/giveaway/'+gacode+'/signature.png" width="280px" height="53px"><br>HTML code (Websites & Blogs):<input width="280px" onclick="this.select();" value=\'<a href="https://steamgifts.com/giveaway/'+gacode+'/"><img src="https://steamgifts.com/giveaway/'+gacode+'/signature.png"></a>\'><br>BB code (Forums):<br><input width="280px" onclick="this.select();" value=\'[url=https://steamgifts.com/giveaway/'+gacode+'/][img]https://steamgifts.com/giveaway/'+gacode+'/signature.png[/img][/url]\'>Parsedown code (SteamGifts):<br><input width="280px" onclick="this.select();" value=\'![https://steamgifts.com/giveaway/'+gacode+'/](https://steamgifts.com/giveaway/'+gacode+'/signature.png)\'><br>Direct link:<br><input width="280px" onclick="this.select();" value=\'https://steamgifts.com/giveaway/'+gacode+'/signature.png\'></div></div>');
 }
 
 //Options
@@ -631,6 +640,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
 <div class="comment__submit-button" title="Italic text" type="wrap" value="*"><i class="fa fa-italic fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Bold text" type="wrap" value="**"><i class="fa fa-bold fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Strikethrough" type="wrap" value="~~"><i class="fa fa-strikethrough fa-fw"></i></div>	\
+<div class="comment__submit-button" title="Emoticons" type="emoticon">😀</div>	\
 <div class="comment__submit-button serperator" title="List" type="list" value="* "><i class="fa fa-list-ul fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Spoiler" type="wrap" value="~"><i class="fa fa-stop fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Code" type="wrap" value="```"><i class="fa fa-code fa-fw"></i></div>	\
@@ -643,15 +653,69 @@ if(Number(GM_getValue("esg_commenteditor",1)))
 <div class="comment__submit-button" title="Insert image" type="image"><i class="fa fa-image fa-fw"></i></div>	\
 <a href="https://www.steamgifts.com/about/comment-formatting" target="_blank"><div class="comment__submit-button serperator" title="Comment Formatting"><i class="fa fa-info fa-fw"></i></div></a>	\
 </div>');
+    $(".comment__tools .comment__submit-button[type=emoticon]").after('<div class="emoticons" style="width:295px;height:165px;position:absolute;background:#e8eef6;border:1px solid #d0dced;border-radius:5px;padding:5px;display:none"> \
+<div class="comment__submit-button" title=":)" type="insert" value="😀">😀</div>	\
+<div class="comment__submit-button" title=":D" type="insert" value="😃">😃</div>	\
+<div class="comment__submit-button" title="xD" type="insert" value="😆">😆</div>	\
+<div class="comment__submit-button" title="Halo" type="insert" value="😇">😇</div>	\
+<div class="comment__submit-button" title="Tongue" type="insert" value="😜">😜</div>	\
+<div class="comment__submit-button" title="In love" type="insert" value="😍">😍</div>	\
+<div class="comment__submit-button" title="Cool" type="insert" value="😎">😎</div>	\
+<div class="comment__submit-button" title="Neutral" type="insert" value="😐">😐</div>	\
+<div class="comment__submit-button" title="Fear" type="insert" value="😨">😨</div>	\
+<div class="comment__submit-button" title="Crying" type="insert" value="😭">😭</div>	\
+<div class="comment__submit-button" title="Zipped mouth" type="insert" value="🤐">🤐</div>	\
+<div class="comment__submit-button" title="Rolling" type="insert" value="🤣">🤣</div>	\
+<div class="comment__submit-button" title="Devil" type="insert" value="😈">😈</div>	\
+<div class="comment__submit-button" title="Sleeping" type="insert" value="😴">😴</div>	\
+<div class="comment__submit-button" title="Dizzy" type="insert" value="😵">😵</div>	\
+<div class="comment__submit-button" title="Doc" type="insert" value="😷">😷</div>	\
+<div class="comment__submit-button" title="Nerd face" type="insert" value="🤓">🤓</div>	\
+<div class="comment__submit-button" title="Upside down" type="insert" value="🙃">🙃</div>	\
+<div class="comment__submit-button" title="Money mouth" type="insert" value="🤑">🤑</div>	\
+<div class="comment__submit-button" title="Angry" type="insert" value="😤">😤</div>	\
+<div class="comment__submit-button" title="Cowboy" type="insert" value="🤠">🤠</div>	\
+<div class="comment__submit-button" title="Clown" type="insert" value="🤡">🤡</div>	\
+<div class="comment__submit-button" title="Skull" type="insert" value="💀">💀</div>	\
+<div class="comment__submit-button" title="Ghost" type="insert" value="👻">👻</div>	\
+<div class="comment__submit-button" title="Alien" type="insert" value="👽">👽</div>	\
+<div class="comment__submit-button" title="Poop" type="insert" value="💩">💩</div>	\
+<div class="comment__submit-button" title="Bit-monster" type="insert" value="👾">👾</div>	\
+<div class="comment__submit-button" title="Robot" type="insert" value="🤖">🤖</div>	\
+<div class="comment__submit-button" title="Cat" type="insert" value="😸">😸</div>	\
+<div class="comment__submit-button" title="Happy Cat" type="insert" value="😺">😺</div>	\
+<div class="comment__submit-button" title="Cat in love" type="insert" value="😻">😻</div>	\
+<div class="comment__submit-button" title="Crying cat" type="insert" value="😿">😿</div>	\
+<div class="comment__submit-button" title="Weary cat" type="insert" value="🙀">🙀</div>	\
+<div class="comment__submit-button" title="Kitty face" type="insert" value="🐱">🐱</div>	\
+<div class="comment__submit-button" title="Kitty" type="insert" value="🐈">🐈</div>	\
+<div class="comment__submit-button" title="Eyes" type="insert" value="👀">👀</div>	\
+<div class="comment__submit-button" title="Kiss" type="insert" value="💋">💋</div>	\
+<div class="comment__submit-button" title="Mouth" type="insert" value="👄">👄</div>	\
+<div class="comment__submit-button" title="Bomb" type="insert" value="💣">💣</div>	\
+<div class="comment__submit-button" title="Unicorn" type="insert" value="🦄">🦄</div>	\
+<div class="comment__submit-button" title="Goat" type="insert" value="🐐">🐐</div>	\
+<div class="comment__submit-button" title="Pig" type="insert" value="🐷">🐷</div>	\
+<div class="comment__submit-button" title="Luck" type="insert" value="🍀">🍀</div>	\
+<div class="comment__submit-button" title="Controller" type="insert" value="🎮">🎮</div>	\
+<div class="comment__submit-button" title="Santa" type="insert" value="🎅">🎅</div>	\
+</div>');
+
+    
 
     $(document).on('click', '.comment__tools .comment__submit-button', function() {
         var type=$(this).attr("type");
         var val=$(this).attr("value");
-        var textarea=$(this).parent().parent().find("textarea");
+        var textarea=$(this).closest(".comment").find("textarea");
         var text=$(textarea).val();
         var before=text.substr(0,$(textarea)[0].selectionStart);
         var between=text.substr($(textarea)[0].selectionStart,$(textarea)[0].selectionEnd-$(textarea)[0].selectionStart);
         var after=text.substr($(textarea)[0].selectionEnd,text.length-$(textarea)[0].selectionEnd);
+        if(type!="emoticon") $(textarea).focus();
+        if(type=="emoticon")
+        {
+            $(".emoticons").toggle();
+        }
         if(type=="url")
         {
             var url=prompt("Url:","http://");
@@ -669,10 +733,10 @@ if(Number(GM_getValue("esg_commenteditor",1)))
             if(url2===null) return;
             var txt2=prompt("Text:","");
             if(txt2===null) return;
-            var out="!["+txt2+"]("+url2+")";
-            $(textarea).val(before+out+after);
+            var out2="!["+txt2+"]("+url2+")";
+            $(textarea).val(before+out2+after);
             $(textarea)[0].selectionStart=before.length;
-            $(textarea)[0].selectionEnd=before.length+out.length;
+            $(textarea)[0].selectionEnd=before.length+out2.length;
         }
         if(type=="wrap")
         {
@@ -683,7 +747,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
         if(type=="insert")
         {
             $(textarea).val(before+val+after);
-            $(textarea)[0].selectionStart=before.length;
+            $(textarea)[0].selectionStart=before.length+val.length;
             $(textarea)[0].selectionEnd=before.length+val.length;
         }
         if(type=="list")
@@ -785,7 +849,7 @@ if ($(".pagination").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
 		$('.comment--submit').insertAfter(".page__heading:contains('Comment')");
 	});
 
-	$(".sidebar").append("<span class=\"fp-mark\" height=0></span><div class=\"floating-pagination global__image-outer-wrap\">" + $('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", "") + "</div>");
+	$(".sidebar").append("<span class=\"fp-mark\" height=0></span><div class=\"floating-pagination global__image-outer-wrap\">"+($(".comment--submit").length >0? '<div class="sidebar__action-button jump_to_comment no-user-select">Write a comment</div>':'') + $('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", "") + "</div>");
 	$('.pagination').remove();
 	if ($(".fp-mark").offset().top-$(window).height()+150<$(window).scrollTop()) $(".floating-pagination").show();
 	else $(".floating-pagination").hide();
@@ -831,7 +895,7 @@ if ($(".pagination").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
 					if (rx)
 						pagination_max = rx[2];
 
-					$(".floating-pagination").html($(source).find('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", ""));
+					$(".floating-pagination").html(($(".comment--submit").length >0? '<div class="sidebar__action-button jump_to_comment">Write a comment</div>':'') + $(source).find('.pagination').html().replace("Previous", "").replace("...", "").replace("...", "").replace("Next", "").replace("First", "").replace("Last", ""));
 					$(".pagination__results strong:first").html(pagination_min);
 					$(".pagination__results strong:nth-child(2)").html(pagination_max);
 				},
@@ -844,6 +908,16 @@ if ($(".pagination").length > 0 && Number(GM_getValue("esg_autoscroll", 1))) {
 		}
 	});
 }
+
+$(document).on("click",".jump_to_comment",function () { 
+    setTimeout(function() {
+    $('html, body').animate({
+			scrollTop: $(".comment--submit").offset().top-100
+		}, 'fast', function() {
+    $("textarea[name=description]").focus();
+  });
+    }, 1);
+});
 
 if(Number(GM_getValue("esg_hidefeatured"))&&(path.match('^/giveaways/')||path=="/"))
 {
@@ -863,13 +937,32 @@ if (Number(GM_getValue("esg_fixedheader", 1))) {
 //Re collapse pinned giveaways
 if($(".pinned-giveaways__button").length>0)
 {
-	$(".pinned-giveaways__button").remove();
-	$(".pinned-giveaways__inner-wrap").after('<div class="pinned-giveaways__button" style="margin-top:-20px"><i class="fa fa-chevron-down"></i></div>');
+	$(".pinned-giveaways__button").css("margin-top","-20px").find("i").removeClass("fa-angle-down").addClass("fa-chevron-down");
 	$(document).on("click",".pinned-giveaways__button",function () {
-		$(".pinned-giveaways__inner-wrap").toggleClass("pinned-giveaways__inner-wrap--minimized");
+		$(this).show();
+		var collapsed = $(this).attr("collapsed");
+		if(collapsed == 1)
+		 $(".pinned-giveaways__inner-wrap").addClass("pinned-giveaways__inner-wrap--minimized");
+		else
+		 $(".pinned-giveaways__inner-wrap").removeClass("pinned-giveaways__inner-wrap--minimized");
+		$(this).attr("collapsed",collapsed=="1"?"0":"1");
 		$(this).find(".fa").toggleClass("fa-chevron-down").toggleClass("fa-chevron-up");
 	});
 }
+
+/*
+if($(".pinned-giveaways__button").length>0)
+{
+	$(".pinned-giveaways__button").addClass("pinned-giveaways__button2").removeClass("pinned-giveaways__button")
+	$(".pinned-giveaways__button2").css("margin-top","-20px").find("i").removeClass("fa-angle-down").addClass("fa-chevron-down");
+	setTimeout(function () {
+		$(document).on("click",".pinned-giveaways__button2",function () {
+			$(".pinned-giveaways__inner-wrap").toggleClass("pinned-giveaways__inner-wrap--minimized");
+			$(this).find(".fa").toggleClass("fa-chevron-down").toggleClass("fa-chevron-up");
+			return false;
+		});
+	},1);
+}*/
 
 //Display chances on giveaway's page
 if(Number(GM_getValue("esg_chances", 1))&&path.match("^/giveaway/"))
@@ -1027,7 +1120,7 @@ $.fn.format_ga = function() {
 		//Description
 		$(ga).find(".giveaway__hide").after("<i class=\"giveaway__icon fa fa-file-text-o open--desc\"></i>");
 		//Search
-		$(ga).find(".giveaway__hide").after("<a href=\"/giveaways/search?q="+encodeURIComponent(title.replace('...', ''))+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
+		//$(ga).find(".giveaway__hide").after("<a href=\"/giveaways/search?q="+encodeURIComponent(title.replace('...', ''))+"\" target=\"_blank\"><i class=\"giveaway__icon fa fa-search\"></i></a>");
 
 		//Marks
 		if (Number(GM_getValue("esg_gamark", 1))) {
@@ -1069,7 +1162,7 @@ setTimeout(function() {
             var has = Number($(".nav__points").text());
             if(has+points>300)
             {
-                var diff=points+has-300
+                var diff=points+has-300;
                 if(!confirm("Are you sure?\nYou will lose "+diff+" point"+(diff>1?"s":"")+" by doing this!")) return;
             }
         }
