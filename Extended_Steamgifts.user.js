@@ -184,7 +184,7 @@ Changelog:
 - Added "Write a comment" button to the floating pagination
 - Removed the search button from the giveaway explorer
 - Added parsedown code to the giveaway signatures
-- Fixed some issues with text highlighting in the comment formatter
+- Fixed some issues with text highlighting in the comment formatter
 - Added emoticons to comment formatter
 2.3.6 (2016. 12. 03.)
 - Quick fix
