@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.6
+// @version		2.3.7
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -188,6 +188,9 @@ Changelog:
 - Added emoticons to comment formatter
 2.3.6 (2016. 12. 03.)
 - Quick fix
+2.3.7 (2016. 12. 04.)
+- Fixed level bar with SgV2 dark theme
+- Added new design to the emoticons
  */
 
 /* jshint multistr: true */
@@ -389,7 +392,7 @@ $(".nav__button:contains('Trades')").closest(".nav__button-container").find(".na
 ');
 
 //Level bar
-var account=$(".nav__button-container:contains('Account')");
+var account=$(".nav__button:contains('Account')");
 var account_lv=Number($(account).find("span:nth-child(2)").attr("title"));
 $(account).css("box-shadow","inset "+(($(account).width()*(account_lv-Math.floor(account_lv))-2.5))+"px 0 5px rgba(0,255,50,0.15)");
 
@@ -655,7 +658,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
 <div class="comment__submit-button" title="Insert image" type="image"><i class="fa fa-image fa-fw"></i></div>	\
 <a href="https://www.steamgifts.com/about/comment-formatting" target="_blank"><div class="comment__submit-button serperator" title="Comment Formatting"><i class="fa fa-info fa-fw"></i></div></a>	\
 </div>');
-    $(".comment__tools .comment__submit-button[type=emoticon]").after('<div class="emoticons" style="width:295px;height:165px;position:absolute;background:rgba(0,0,0,0.2);border:1px solid #d0dced;border-radius:5px;padding:5px;display:none"> \
+    $(".comment__tools .comment__submit-button[type=emoticon]").after('<div class="emoticons giveaway__column--invite-only" style="width:330px;height:170px;position:absolute;padding:5px;display:none;z-index:9999"> \
 <div class="comment__submit-button" title=":)" type="insert" value="😀">😀</div>	\
 <div class="comment__submit-button" title=":D" type="insert" value="😃">😃</div>	\
 <div class="comment__submit-button" title="xD" type="insert" value="😆">😆</div>	\
@@ -702,8 +705,8 @@ if(Number(GM_getValue("esg_commenteditor",1)))
 <div class="comment__submit-button" title="Controller" type="insert" value="🎮">🎮</div>	\
 <div class="comment__submit-button" title="Santa" type="insert" value="🎅">🎅</div>	\
 </div>');
-
     
+    $(".emoticons").find(".comment__submit-button").each(function () { $(this).css("display","inline-block").css("width","32px").css("height","32px").css("padding","0") } );
 
     $(document).on('click', '.comment__tools .comment__submit-button', function() {
         var type=$(this).attr("type");
