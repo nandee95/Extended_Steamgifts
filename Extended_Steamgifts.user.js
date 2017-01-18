@@ -394,7 +394,7 @@ $(".nav__button:contains('Trades')").closest(".nav__button-container").find(".na
 //Level bar
 var account=$(".nav__button:contains('Account')");
 var account_lv=Number($(account).find("span:nth-child(2)").attr("title"));
-$(account).css("box-shadow","inset "+(($(account).width()*(account_lv-Math.floor(account_lv))-2.5))+"px 0 5px rgba(0,255,50,0.15)");
+$(account).css("box-shadow","inset "+$(account).outerWidth()*(account_lv-Math.floor(account_lv))+"px 0 5px rgba(0,255,50,0.15)");
 
 //ESG icon
 $("header .nav__left-container").prepend('<img src="https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/logo_trans.png" height="32px" width="32px" title="Extended Steamgifts '+ver+'&#013;By: Nandee">');
