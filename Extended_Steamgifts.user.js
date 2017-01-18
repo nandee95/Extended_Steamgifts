@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.7
+// @version		2.3.8
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -191,6 +191,8 @@ Changelog:
 2.3.7 (2016. 12. 04.)
 - Fixed level bar with SgV2 dark theme
 - Added new design to the emoticons
+2.3.8 (2017. 01. 19.)
+- Fixed level bar
  */
 
 /* jshint multistr: true */
