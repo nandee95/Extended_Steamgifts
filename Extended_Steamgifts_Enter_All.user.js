@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		1.0
+// @version		1.0.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts_Enter_All.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts_Enter_All.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
