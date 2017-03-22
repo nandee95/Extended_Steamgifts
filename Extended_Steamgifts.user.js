@@ -1031,7 +1031,9 @@ $.fn.filter_ga = function() {
 		if ($(ga).find(".giveaway__column--contributor-level").length !== 0)
 			level = Number($(ga).find(".giveaway__column--contributor-level").text().replace("Level", "").replace("+", "").trim());
 
-		if (!(GM_getValue("esg_f_min_level", 0) <= level && level <= GM_getValue("esg_f_max_level", 10)))
+		if (GM_getValue("esg_f_freegiveaways", 1) != 0 && req == 0)
+			$(ga).show();
+		else if (!(GM_getValue("esg_f_min_level", 0) <= level && level <= GM_getValue("esg_f_max_level", 10)))
 			$(ga).hide();
 		else if (!(GM_getValue("esg_f_min_chance", 0) <= chance && chance <= GM_getValue("esg_f_max_chance", 100)))
 			$(ga).hide();
@@ -1540,6 +1542,7 @@ if (path == '/') {
 	var f_group = GM_getValue("esg_f_group", 1);
 	var f_white = GM_getValue("esg_f_whitelist", 1);
 	var f_region = GM_getValue("esg_f_regionrestricted", 1);
+	var f_free = GM_getValue("esg_f_freegiveaways", 1);
 	var f_community = GM_getValue("esg_f_community", 1);
 	var f_c_min = GM_getValue("esg_f_min_copies", 1);
 	var f_c_max = Math.min(GM_getValue("esg_f_max_copies", 1000),1000);
@@ -1596,9 +1599,10 @@ if (path == '/') {
 		<span style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all" tabindex="1">	\
 		</span></div>	\
 		</td>	\
-		<td>	\
-		</td>		\
-		<td>	\
+		<td colspan="2"><div class="form__checkbox cb__two" save="esg_f_freegiveaways">	\
+		<i class="fa fa-circle-o"' + (f_free <= 0 ? "" : ' style="display:none"') + '></i>	\
+		<i class="fa fa-check-circle"' + (f_free >= 1 ? "" : ' style="display:none"') + '></i> Always include free giveaways (override other filters)	\
+		</div>\
 		</td>		\
 		</tr>		\
 		<tr>	\
@@ -1703,6 +1707,21 @@ if (path == '/') {
 			$(this).find(".fa-circle-o").show();
 			$(this).find(".fa-check-circle").hide();
 			$(this).find(".fa-circle").hide();
+			s = 0;
+		}
+		GM_setValue($(this).attr("save"), s);
+		$('.giveaway__row-outer-wrap').filter_ga();
+	});
+	$(".cb__two").click(function() {
+		var icon = $(this).find("i:visible");
+		var s = 0;
+		if ($(icon).hasClass("fa-circle-o")) {
+			$(this).find(".fa-circle-o").hide();
+			$(this).find(".fa-check-circle").show();
+			s = 1;
+		} else if ($(icon).hasClass("fa-check-circle")) {
+			$(this).find(".fa-circle-o").show();
+			$(this).find(".fa-check-circle").hide();
 			s = 0;
 		}
 		GM_setValue($(this).attr("save"), s);
