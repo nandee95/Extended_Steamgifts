@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.8
+// @version		2.3.9
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -193,6 +193,8 @@ Changelog:
 - Added new design to the emoticons
 2.3.8 (2017. 01. 19.)
 - Fixed level bar
+2.3.9 (2017. 06. 29.)
+- Changed classes (sg update)
  */
 
 /* jshint multistr: true */
@@ -559,9 +561,10 @@ function display_about() {
 if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
 	if ($(".page__heading__breadcrumbs:contains('Active Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
 		var c1 = "";
-		$(".page__heading__breadcrumbs:contains('Active Discussions')").closest(".page__heading").next()
+		$(".page__heading__breadcrumbs:contains('Active Discussions')").parent().parent().find(".table")
 			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
-				var img = $(this).find(".global__image-inner-wrap").css('background-image');
+				var img = $(this).find(".table_image_avatar").css('background-image');
+
 				img = img.replace('url(', '').replace(')', '').replace('"', '').replace('"', '');
 				var otitle = $(this).find(".table__column__heading").text();
 				var url = $(this).find(".table__column__heading").attr("href");
@@ -570,6 +573,7 @@ if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && N
 				var owner = $(this).find(".table__column__secondary-link").eq(1).text();
 				var created = $(this).find(".table__column__secondary-link").eq(0).closest("p").find("span").text();
 				var title = otitle;
+			  
 
 				c1 += '<li class="sidebar__navigation__itemz">	\
 			<a class="sidebar__navigation__item__link" href="' + url + '" title="' + otitle.replace(/\"/g,"'") + '" >	\
@@ -1066,7 +1070,6 @@ if(path=="/giveaways/wishlist")
 $.fn.format_ga = function() {
 	return $(this).each(function() {
 		var ga = $(this);
-
 		//Read some data
 		var url = $(ga).find('.giveaway__heading__name').attr('href');
 		var code = 0;
