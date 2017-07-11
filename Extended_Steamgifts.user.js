@@ -196,7 +196,7 @@ Changelog:
 2.3.9 (2017. 06. 29.)
 - Changed classes (sg update)
 2.3.10 (2017. 07. 11.)
-- Fixed re-collapsable sidebar after class update
+- Fixed re-collapsable pinned giveaways after class update
  */
 
 /* jshint multistr: true */
