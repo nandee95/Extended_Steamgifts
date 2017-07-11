@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.9
+// @version		2.3.10
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -195,6 +195,8 @@ Changelog:
 - Fixed level bar
 2.3.9 (2017. 06. 29.)
 - Changed classes (sg update)
+2.3.10 (2017. 07. 11.)
+- Fixed re-collapsable sidebar after class update
  */
 
 /* jshint multistr: true */
@@ -948,7 +950,7 @@ if (Number(GM_getValue("esg_fixedheader", 1))) {
 //Re collapse pinned giveaways
 if($(".pinned-giveaways__button").length>0)
 {
-	$(".pinned-giveaways__button").css("margin-top","-20px").find("i").removeClass("fa-angle-down").addClass("fa-chevron-down");
+	$(".pinned-giveaways__button").find("i").removeClass("fa-angle-down").addClass("fa-chevron-down");
 	$(document).on("click",".pinned-giveaways__button",function () {
 		$(this).show();
 		var collapsed = $(this).attr("collapsed");
@@ -956,6 +958,8 @@ if($(".pinned-giveaways__button").length>0)
 		 $(".pinned-giveaways__inner-wrap").addClass("pinned-giveaways__inner-wrap--minimized");
 		else
 		 $(".pinned-giveaways__inner-wrap").removeClass("pinned-giveaways__inner-wrap--minimized");
+    $(".pinned-giveaways__inner-wrap").css("border-bottom-left-radius","0");
+		$(".pinned-giveaways__inner-wrap").css("border-bottom-right-radius","0");
 		$(this).attr("collapsed",collapsed=="1"?"0":"1");
 		$(this).find(".fa").toggleClass("fa-chevron-down").toggleClass("fa-chevron-up");
 	});
