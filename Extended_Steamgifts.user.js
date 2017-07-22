@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.10
+// @version		2.3.11
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -197,6 +197,8 @@ Changelog:
 - Changed classes (sg update)
 2.3.10 (2017. 07. 11.)
 - Fixed re-collapsable pinned giveaways after class update
+2.3.11 (2017. 07. 23.)
+- Fixed broken elements in sidebar (sg update)
  */
 
 /* jshint multistr: true */
@@ -325,6 +327,10 @@ $("body").prepend("	\
 	margin:2px 0 2px 0;	\
 	width:100%;	\
 }	\
+.sidebar__navigation__itemz,.sidebar__navigation__item__link,.sidebar__navigation__item__underline \
+{ \
+  max-width:9999px !important; \
+} \
 </style>");
 
 //Read some values
@@ -560,6 +566,50 @@ function display_about() {
 }
 
 //Active Discussions
+if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
+	if ($(".homepage_heading:contains('Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
+		var c1 = "";
+		$(".homepage_heading:contains('Discussions')").parent().find(".table").find(".table__rows").find(".table__row-outer-wrap").each(function() {
+				var img = $(this).find(".table_image_avatar").css('background-image');
+
+				img = img.replace('url(', '').replace(')', '').replace('"', '').replace('"', '');
+				var otitle = $(this).find(".homepage_table_column_heading").text();
+				var url = $(this).find(".homepage_table_column_heading").attr("href");
+				var comments = $(this).find(".table__column__secondary-link").eq(0).text();
+			  var owner = $(this).find(".table__column__secondary-link").eq(1).text();
+				var elapsed = $(this).find(".table__column__secondary-link").eq(0).closest("p").find("span").text();
+				var title = otitle;
+			  
+
+				c1 += '<li class="sidebar__navigation__itemz">	\
+			<a class="sidebar__navigation__item__link" href="' + url + '" title="' + otitle.replace(/\"/g,"'") + '" >	\
+			<i class="global__image-outer-wrap global__image-outer-wrap--avatar-small">	\
+			<div class="global__image-inner-wrap" style="background-image:url(' + img + ');"></div></i>	\
+			</div>	\
+			<div class="sidebar__navigation__item__underline">	\
+<div class="sidebar__navigation__item__title" style="max-width:270px;white-space: nowrap;overflow:hidden">' + title + '</div>	\
+			<i class="fa fa-comment" style="color:white;text-shadow:0px 1px #AAB5C6, 0px -1px #AAB5C6, 1px 0px #AAB5C6, -1px 0px #AAB5C6"></i> ' + comments + '<br>\
+			<span style="float:right" class="sidebar__navigation__item__name"></span>	\
+      Last post: ' + elapsed + ' ago by <span class="sidebar__navigation__item__name">' + owner + '</span> 	\
+			</div>	\
+			</a>	\
+			</li>';
+			});
+		$(".sidebar__navigation:last").after('					\
+			<h3 class="sidebar__heading">Discussions</h3>	\
+			<ul class="sidebar__navigation">	\
+			' + c1 + '\
+			<li class="sidebar__navigation__item">		\
+			<a class="sidebar__navigation__item__link" href="/discussions">		\
+			<div class="sidebar__navigation__item__name">More discussions</div>		\
+			<div class="sidebar__navigation__item__underline"></div>		\
+			</a>	\
+			</li>		\
+			</ul>	\
+			');
+	}
+/*
+
 if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
 	if ($(".page__heading__breadcrumbs:contains('Active Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
 		var c1 = "";
@@ -605,6 +655,7 @@ if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && N
 			');
 	}
 
+
 	if ($(".page__heading__breadcrumbs:contains('Community Voted')").length) {
 
 		var c2 = "";
@@ -637,6 +688,45 @@ if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && N
 			});
 		$(".sidebar__navigation:last").after('					\
 			<h3 class="sidebar__heading">Community Voted</h3>	\
+			<ul class="sidebar__navigation">	\
+			' + c2 + '\
+			</ul>	\
+			');
+	}
+
+*/
+	if ($(".homepage_heading:contains('Community Poll')").length) {
+		var c2 = "";
+		var total_votes = 0;
+		$(".homepage_heading:contains('Community Poll')").parent().find(".poll")
+			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
+				total_votes += Number($(this).attr("data-votes"));
+			});
+
+		$(".homepage_heading:contains('Community Poll')").parent().find(".poll")
+			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
+				var img = $(this).find(".global__image-inner-wrap").css('background-image');
+			  if(img)
+				img = img.replace('url(', '').replace(')', '').replace('"', '').replace('"', '');
+				var title = $(this).find(".table__column__heading").text();
+				var votes = Number($(this).attr("data-votes"));
+				var id = $(this).attr("data-id");
+				var url = $(this).find('a').attr('href');
+				var form = $(this).find("form");
+				$(form).find('.poll__vote-button').css("padding", 0).addClass('poll__vote-button-sidebar');
+				form = $(form).html().replace("Voted", "").replace("Vote", "");
+				var percent = Math.round(votes / (total_votes > 0 ? total_votes : 1) * 10000) / 100;
+				c2 += '<li class="sidebar__navigation__itemz table__row-outer-wrap' + ($(this).hasClass("is-selected") ? ' is-selected' : ' not-selected') + '" data-id=' + $(this).attr("data-id") + ' data-votes=' + votes + '>	\
+			<div class="sidebar__navigation__item__link" title="' + title + '">	\
+			'+ (img ?'<i class="global__image-outer-wrap global__image-outer-wrap--game-small">	\
+			<div class="global__image-inner-wrap" style="background-image:url(' + img + ');"></div></i>' : '')+'	\
+<div class="sidebar__navigation__item__underline">	\
+			<div class="sidebar__navigation__item__title" style="width:150px;white-space: nowrap;overflow:hidden"><a target="_blank" href="' + url + '">' + title + '</a></div>	\
+			' + votes + ' votes <br>' + percent + '%</div>	   <form>' + form + '</form>		\
+			</div></li>';
+			});
+		$(".sidebar__navigation:last").after('					\
+			<h3 class="sidebar__heading">Community Poll</h3>	\
 			<ul class="sidebar__navigation">	\
 			' + c2 + '\
 			</ul>	\
