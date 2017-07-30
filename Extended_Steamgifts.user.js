@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.11
+// @version		2.3.12
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -199,6 +199,9 @@ Changelog:
 - Fixed re-collapsable pinned giveaways after class update
 2.3.11 (2017. 07. 23.)
 - Fixed broken elements in sidebar (sg update)
+2.3.12 (2017. 07. 30.)
+- Bundled games moved to the Help menu
+- Fixed z-index for the floating pagination
  */
 
 /* jshint multistr: true */
@@ -271,6 +274,7 @@ $("body").prepend("	\
 	bottom:45px;	\
 	width:" + $(".sidebar").width() + "px;	\
 	text-align:center;	\
+  z-index:99999; \
 }	\
 .filter-content	\
 {	\
@@ -398,7 +402,7 @@ $(".nav__button:contains('Giveaways')").closest(".nav__button-container").find("
 <a class="nav__row" href="http://www.itstoohard.com/create" target="_blank"><i class="icon-green fa fa-fw fa-question"></i>	\
 <div class="nav__row__summary"><p class="nav__row__summary__name">Create quiz</p><p class="nav__row__summary__description">It\'s too hard</p></div></a>	\
 ');
-$(".nav__button:contains('Trades')").closest(".nav__button-container").find(".nav__absolute-dropdown").append('	\
+$(".nav__button:contains('Help')").closest(".nav__button-container").find(".nav__absolute-dropdown").append('	\
 <a class="nav__row" href="/bundle-games"><i class="icon-red fa fa-fw fa-delicious"></i>	\
 <div class="nav__row__summary"><p class="nav__row__summary__name">Bundle games</p><p class="nav__row__summary__description">Full list of bundle games.</p></div></a>	\
 ');
