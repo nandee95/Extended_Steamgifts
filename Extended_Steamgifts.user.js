@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.12
+// @version		2.3.13
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -202,6 +202,8 @@ Changelog:
 2.3.12 (2017. 07. 30.)
 - Bundled games moved to the Help menu
 - Fixed z-index for the floating pagination
+2.3.13 (2017. 10. 17.)
+- Updated some values after sg's point system update
  */
 
 /* jshint multistr: true */
@@ -1268,9 +1270,9 @@ setTimeout(function() {
             var ga=$(t).closest(".giveaway__row-outer-wrap");
             var points = Number($(ga).find(".giveaway__heading__thin:last").text().replace("(", "").replace(")", "").replace("P", ""));
             var has = Number($(".nav__points").text());
-            if(has+points>300)
+            if(has+points>400)
             {
-                var diff=points+has-300;
+                var diff=points+has-400;
                 if(!confirm("Are you sure?\nYou will lose "+diff+" point"+(diff>1?"s":"")+" by doing this!")) return;
             }
         }
