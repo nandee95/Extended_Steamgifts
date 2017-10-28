@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
-// @version		2.3.13
+// @version		2.4
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -204,6 +204,11 @@ Changelog:
 - Fixed z-index for the floating pagination
 2.3.13 (2017. 10. 17.)
 - Updated some values after sg's point system update
+2.4 (2017. 10. 28.)
+- Popup box to set precise copies for the filter (just click on the numbers to reach it)
+- Added steam store widgets
+- Removed notification about loosing points by removing entry.
+- Added hidded giveaway notification on giveaway page
  */
 
 /* jshint multistr: true */
@@ -1092,6 +1097,12 @@ if(Number(GM_getValue("esg_chances", 1))&&path.match("^/giveaway/"))
     $(".featured__columns").find(".featured__column:first").after('<div class="featured__column"><i class="fa fa-fw fa-area-chart icon-yellow"></i> <span alt="Odds: '+(entries/copies).toFixed(0)+':1"'+(chance>=5?" style='font-weight:bold'":"")+'>'+chance+'% chance</span></div>');
 }
 
+//Hidden giveaway notfication
+if(path.match("^/giveaway/") && $(".featured__giveaway__hide").length == 0)
+{
+    $(".featured__columns").find(".featured__column:first").after('<div class="featured__column"><i class="fa fa-fw fa-ban icon-red"></i> Hidden game</div>');
+}
+
 //Filter
 $.fn.filter_ga = function() {
 	if (path != "/")
@@ -1265,6 +1276,7 @@ setTimeout(function() {
 	$(".sidebar__entry-insert, .sidebar__entry-delete").unbind("click");
 	$(document).on('click', '.sidebar__entry-insert:not(.enterall), .sidebar__entry-delete', function() {
 		var t = $(this);
+        /*
         if(t.hasClass("sidebar__entry-delete"))
         {
             var ga=$(t).closest(".giveaway__row-outer-wrap");
@@ -1275,7 +1287,7 @@ setTimeout(function() {
                 var diff=points+has-400;
                 if(!confirm("Are you sure?\nYou will lose "+diff+" point"+(diff>1?"s":"")+" by doing this!")) return;
             }
-        }
+        }*/
         t.addClass("is-hidden");
 		t.closest("form").find(".sidebar__entry-loading").removeClass("is-hidden");
 		t.closest("form").find("input[name=do]").val(t.attr("data-do"));
@@ -1383,7 +1395,8 @@ $.fn.format_comment = function() {
 			var text=$(this).html();
 			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)(?:youtube.com\/watch\?v=|youtu.be\/)([a-zA-Z0-9\_\-]+).+?">(?:.+?)<\/a>)/g,'$1<iframe class="global__image-outer-wrap" src="https://www.youtube.com/embed/$2" width="420" height="315"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
 			text=text.replace(/<a href="((?:https?:\/\/(?:www.)?)gleam.io\/[A-Za-z0-9]{5}\/?.+?)".+?>(.+?)<\/a>/g,'<div class="global__image-outer-wrap" style="width:545px !important;padding:5px 5px 5px 10px"><a class="e-gleam" href="$1" rel="nofollow">$2</a></div><script type="text/javascript" src="https://js.gleam.io/e.js" async="true"></script>');
-			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(?:.+?)<\/a>)/g,'$1<iframe src="https://player.vimeo.com/video/$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');			
+			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(?:.+?)<\/a>)/g,'$1<iframe src="https://player.vimeo.com/video/$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
+			text=text.replace(/(<a href="(?:https?:\/\/)store.steampowered.com\/app\/(\d+)\/.*?".*?>(?:(?:.*)?)<\/a>)/g,'$1<iframe src="https://store.steampowered.com/widget/$2/?dynamiclink=1" class="global__image-outer-wrap" width="563" height="190" frameborder="0"></iframe>');	
 			$(this).html(text);
 	});
 };
@@ -1706,7 +1719,7 @@ if (path == '/') {
 		</tr>		\
 		<tr>	\
 		<td>	\
-		Copies <span class="f_copies">' + (f_c_min == f_c_max ? (f_c_max==1000? "&infin;": f_c_max) : f_c_min + " - " + (f_c_max==1000? "&infin;":f_c_max)) + '</span>			\
+		Copies <span class="f_copies"><span class="f_min_copy">' + (f_c_min == f_c_max ? (f_c_max==1000? "&infin;": f_c_max) : f_c_min + "</span> - <span class=\"f_max_copy\">" + (f_c_max==1000? "&infin;":f_c_max)) + '</span></span>			\
 		<div class="filter__slider form__slider_filter--copies ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">	\
 		<div style="width: 0%;" class="ui-slider-range ui-widget-header ui-corner-all ui-slider-range-min"></div>	\
 		<span style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all" tabindex="1">	\
@@ -1722,6 +1735,58 @@ if (path == '/') {
 		</tr>		\
 		</table></div>		\
 		');
+    $(document).on("click",".f_min_copy",function () {
+        var val = prompt("Minimum copy:");
+        var int = Number(val);
+        if(!$.isNumeric(val) || int <= 0)
+        {
+         alert("Invalid number")
+         return
+        }
+        var max = GM_getValue("esg_f_max_copies", 1000)
+        if(int > max)
+        {
+         alert("The minimum value can't be higher than the maximum value.")
+         return
+        }
+        
+        GM_setValue("esg_f_min_copies", int);
+        var min = int;
+              
+        
+        $(".f_copies").html("<span class=\"f_min_copy\">"+(min == max ? (max==1000? "&infin;":max) : min )+ "</span> - <span class=\"f_max_copy\">" + (max==1000? "&infin;":max)+"</span>");
+        
+        $('.form__slider_filter--copies').slider('values',0,min).slider('values',1,max);
+        
+        $('.giveaway__row-outer-wrap').filter_ga();
+    });
+    
+    $(document).on("click",".f_max_copy",function () {
+        var val = prompt("Maximum copy: (1000 means infinity)");
+        var int = Number(val);
+        if(!$.isNumeric(val) || int > 1000)
+        {
+         alert("Invalid number")
+         return
+        }
+        var min = GM_getValue("esg_f_min_copies", 1)
+        if(int < min)
+        {
+         alert("The maximum value can't be lower than the minimum value.")
+         return
+        }
+        
+        GM_setValue("esg_f_max_copies", int);
+        var max = int;
+              
+        
+        $(".f_copies").html("<span class=\"f_min_copy\">"+(min == max ? (max==1000? "&infin;":max) : min )+ "</span> - <span class=\"f_max_copy\">" + (max==1000? "&infin;":max)+"</span>");
+        
+        $('.form__slider_filter--copies').slider('values',0,min).slider('values',1,max);
+        
+        $('.giveaway__row-outer-wrap').filter_ga();
+    });
+    
 	
 	Math.easeIn = function (val, min, max, strength) {
 		val /= max;
@@ -1779,7 +1844,7 @@ if (path == '/') {
 			var max=ui.values[1];
 			GM_setValue("esg_f_min_copies", min);
 			GM_setValue("esg_f_max_copies", max);
-			$(".f_copies").html(min == max ? (max==1000? "&infin;":max) : min + " - " + (max==1000? "&infin;":max));
+			$(".f_copies").html("<span class=\"f_min_copy\">"+(min == max ? (max==1000? "&infin;":max) : min) + "</span> - <span class=\"f_max_copy\">" + (max==1000? "&infin;":max)+"</span>");
 			$('.giveaway__row-outer-wrap').filter_ga();
 		}
 	});
