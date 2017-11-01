@@ -3,8 +3,8 @@
 // @description	New features for Steamgifts.com
 // @author		Nandee
 // @namespace	esg
-// @include		*steamgifts.com*
-// @version		2.4
+// @include	    *steamgifts.com*
+// @version		2.4.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -209,6 +209,9 @@ Changelog:
 - Added steam store widgets
 - Removed notification about loosing points by removing entry.
 - Added hidded giveaway notification on giveaway page
+2.4.1 (2017. 11. 01.)
+- Comment features disabled inside of tables
+- Comment features performance improved
  */
 
 /* jshint multistr: true */
@@ -1392,12 +1395,32 @@ $.fn.format_comment = function() {
 	return $(this).each(function() {
 			$(this).find(".comment__toggle-attached").remove();
 			$(this).find("img").removeClass("is-hidden");
-			var text=$(this).html();
-			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)(?:youtube.com\/watch\?v=|youtu.be\/)([a-zA-Z0-9\_\-]+).+?">(?:.+?)<\/a>)/g,'$1<iframe class="global__image-outer-wrap" src="https://www.youtube.com/embed/$2" width="420" height="315"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
-			text=text.replace(/<a href="((?:https?:\/\/(?:www.)?)gleam.io\/[A-Za-z0-9]{5}\/?.+?)".+?>(.+?)<\/a>/g,'<div class="global__image-outer-wrap" style="width:545px !important;padding:5px 5px 5px 10px"><a class="e-gleam" href="$1" rel="nofollow">$2</a></div><script type="text/javascript" src="https://js.gleam.io/e.js" async="true"></script>');
-			text=text.replace(/(<a href="(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?".+?>(?:.+?)<\/a>)/g,'$1<iframe src="https://player.vimeo.com/video/$2" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
-			text=text.replace(/(<a href="(?:https?:\/\/)store.steampowered.com\/app\/(\d+)\/.*?".*?>(?:(?:.*)?)<\/a>)/g,'$1<iframe src="https://store.steampowered.com/widget/$2/?dynamiclink=1" class="global__image-outer-wrap" width="563" height="190" frameborder="0"></iframe>');	
-			$(this).html(text);
+			$(this).find("a").each(function () {
+                
+                if($(this).closest("table").length != 0 ) return
+                var res = $(this).attr("href").match(/^(?:https?:\/\/(?:www.)?)(?:youtube.com\/watch\?v=|youtu.be\/)([a-zA-Z0-9\_\-]+).*?$/);
+                if(res)
+                {
+                    $(this).after('<iframe class="global__image-outer-wrap" src="https://www.youtube.com/embed/'+res[1]+'" width="420" height="315"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
+                }
+                
+                res = $(this).attr("href").match(/^(?:https?:\/\/(?:www.)?)vimeo.com\/([0-9]{5,12})\/?.+?$/);
+                if(res)
+                {
+                    $(this).after('<iframe src="https://player.vimeo.com/video/'+res[1]+'" class="global__image-outer-wrap" width="420" height="315" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>');
+                }
+                
+                 res = $(this).attr("href").match(/^(?:https?:\/\/)store.steampowered.com\/app\/(\d+)\/.*?$/);
+                if(res)
+                {
+                    $(this).after('<iframe src="https://store.steampowered.com/widget/'+res[1]+'/?dynamiclink=1" class="global__image-outer-wrap" width="563" height="190" frameborder="0"></iframe>');
+                }
+                res = $(this).attr("href").match(/^((?:https?:\/\/(?:www.)?)gleam.io\/[A-Za-z0-9]{5}\/?.*?)$/);
+                if(res)
+                {
+                    $(this).after('<div class="global__image-outer-wrap" style="width:545px !important;padding:5px 5px 5px 10px"><a class="e-gleam" href="'+res[1]+'" rel="nofollow">$2</a></div><script type="text/javascript" src="https://js.gleam.io/e.js" async="true"></script>');
+                }
+            });
 	});
 };
 $(".comment").find("div[class='comment__description markdown markdown--resize-body']").format_comment();
