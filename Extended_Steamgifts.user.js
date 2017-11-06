@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include	    *steamgifts.com*
-// @version		2.4.1
+// @version		2.4.2
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -212,6 +212,8 @@ Changelog:
 2.4.1 (2017. 11. 01.)
 - Comment features disabled inside of tables
 - Comment features performance improved
+2.4.2 (2017. 11. 06.)
+- Added steam activator link to the won giveaways list
  */
 
 /* jshint multistr: true */
@@ -578,6 +580,12 @@ function display_about() {
 		</div>	\
 		");
 }
+
+//Steam activator link
+$(".icon_to_clipboard").each(function () {
+    if($(this).attr("data-clipboard-text").indexOf("http")!=-1) return; //Skip links
+    $(this).before('<a href="https://store.steampowered.com/account/registerkey?key='+$(this).attr("data-clipboard-text")+'" title="Activate key on steam"><i class="fa fa-fw fa-steam-square"></i></a>');
+});
 
 //Active Discussions
 if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
