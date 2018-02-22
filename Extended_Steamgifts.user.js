@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include	    *steamgifts.com*
-// @version		2.4.2
+// @version		2.4.3
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -214,6 +214,8 @@ Changelog:
 - Comment features performance improved
 2.4.2 (2017. 11. 06.)
 - Added steam activator link to the won giveaways list
+2.4.3 (2018. 02. 22.)
+- Removed Pledgie links
  */
 
 /* jshint multistr: true */
@@ -568,8 +570,6 @@ function display_about() {
 		<div class=\"form__heading\"><div class=\"form__heading__number\">3.</div><div class=\"form__heading__text\">Donation:</div></div>	\
 		<div class=\"form__row__indent\">	\
 		Thank you all for your donations! I really appreciate them! <br>\
-		Pledgie campaign:<br>	\
-		<a href='https://pledgie.com/campaigns/31484'><img alt='Click here to lend your support to: Extended Steamgifts and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/31484.png?skin_name=chrome' border='0' ></a><br>	\
 		Steam donate (tradeoffer):<br>	\
 		<a href='https://steamcommunity.com/tradeoffer/new/?partner=95793561&amp;token=HxnczDWg'><img src='https://raw.githubusercontent.com/nandee95/Extended_Steamgifts/master/img/steam_donate.png' style='max-width:100%;'></a><br>	\
 		Whitelist: \
