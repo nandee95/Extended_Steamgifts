@@ -1236,7 +1236,7 @@ $.fn.format_ga = function() {
 		}
 
 		//Enter/Remove button
-		if (Number(GM_getValue("esg_enterremove", 1)) && loggedin && active && user != username && title!="Invite Only" ) {
+		if (Number(GM_getValue("esg_enterremove", 1)) && loggedin && active && user != username && title!="Invite Only" && $(ga).find('.giveaway__column--contributor-level--negative').length === 0) {
 			$(ga).find('.giveaway__row-inner-wrap').removeClass('is-faded');
 			$(ga).find(".giveaway__columns").append("<div><form>	\
 				<input type=\"hidden\" name=\"xsrf_token\" value=\"" + xsrf + "\" />	\
