@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include	    *steamgifts.com*
-// @version		2.4.3
+// @version		2.4.4
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -216,6 +216,8 @@ Changelog:
 - Added steam activator link to the won giveaways list
 2.4.3 (2018. 02. 22.)
 - Removed Pledgie links
+2.4.4 (2018. 05. 29.)
+- Merged pull request from alpe12: Don't show enter button if level too high for you #28
  */
 
 /* jshint multistr: true */
