@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include	    *steamgifts.com*
-// @version		2.4.4
+// @version		2.4.5
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -218,6 +218,11 @@ Changelog:
 - Removed Pledgie links
 2.4.4 (2018. 05. 29.)
 - Merged pull request from alpe12: Don't show enter button if level too high for you #28
+2.4.5 (2019. 08. 01.)
+- Removed some commented code
+- Added deals to the sidebar
+- Handled timeout for the enter/remove button
+- Fixed some code errors
  */
 
 /* jshint multistr: true */
@@ -386,7 +391,7 @@ function updateURLParameter(url, param, paramVal) {
 	var temp = "";
 	if (additionalURL) {
 		tempArray = additionalURL.split("&");
-		for (i = 0; i < tempArray.length; i++) {
+		for (var i = 0; i < tempArray.length; i++) {
 			if (tempArray[i].split('=')[0] != param) {
 				newAdditionalURL += temp + tempArray[i];
 				temp = "&";
@@ -592,7 +597,7 @@ $(".icon_to_clipboard").each(function () {
 //Active Discussions
 if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
 	if ($(".homepage_heading:contains('Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
-		var c1 = "";
+        var c1 = "";
 		$(".homepage_heading:contains('Discussions')").parent().find(".table").find(".table__rows").find(".table__row-outer-wrap").each(function() {
 				var img = $(this).find(".table_image_avatar").css('background-image');
 
@@ -632,46 +637,42 @@ if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue
 			</ul>	\
 			');
 	}
-/*
 
-if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
-	if ($(".page__heading__breadcrumbs:contains('Active Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
-		var c1 = "";
-		$(".page__heading__breadcrumbs:contains('Active Discussions')").parent().parent().find(".table")
-			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
+    if ($(".homepage_heading:contains('Deals')").length && Number(GM_getValue("esg_discussions", 1))) {
+		var c3 = "";
+		$(".homepage_heading:contains('Deals')").parent().find(".table").find(".table__rows").find(".table__row-outer-wrap").each(function() {
 				var img = $(this).find(".table_image_avatar").css('background-image');
 
 				img = img.replace('url(', '').replace(')', '').replace('"', '').replace('"', '');
-				var otitle = $(this).find(".table__column__heading").text();
-				var url = $(this).find(".table__column__heading").attr("href");
-				var comments = $(this).find(".text-center").text();
-				var topic = $(this).find(".table__column__secondary-link").eq(0).text();
-				var owner = $(this).find(".table__column__secondary-link").eq(1).text();
-				var created = $(this).find(".table__column__secondary-link").eq(0).closest("p").find("span").text();
+				var otitle = $(this).find(".homepage_table_column_heading").text();
+				var url = $(this).find(".homepage_table_column_heading").attr("href");
+				var comments = $(this).find(".table__column__secondary-link").eq(0).text();
+			  var owner = $(this).find(".table__column__secondary-link").eq(1).text();
+				var elapsed = $(this).find(".table__column__secondary-link").eq(0).closest("p").find("span").text();
 				var title = otitle;
-			  
 
-				c1 += '<li class="sidebar__navigation__itemz">	\
+
+				c3 += '<li class="sidebar__navigation__itemz">	\
 			<a class="sidebar__navigation__item__link" href="' + url + '" title="' + otitle.replace(/\"/g,"'") + '" >	\
 			<i class="global__image-outer-wrap global__image-outer-wrap--avatar-small">	\
 			<div class="global__image-inner-wrap" style="background-image:url(' + img + ');"></div></i>	\
 			</div>	\
 			<div class="sidebar__navigation__item__underline">	\
 <div class="sidebar__navigation__item__title" style="max-width:270px;white-space: nowrap;overflow:hidden">' + title + '</div>	\
-			<i class="fa fa-comment" style="color:white;text-shadow:0px 1px #AAB5C6, 0px -1px #AAB5C6, 1px 0px #AAB5C6, -1px 0px #AAB5C6"></i> ' + comments + ' Comment<br>	\
-			<span style="float:right" class="sidebar__navigation__item__name">' + topic + '</span>	\
-			' + created + ' by <span class="sidebar__navigation__item__name">' + owner + '</span>	\
+			<i class="fa fa-comment" style="color:white;text-shadow:0px 1px #AAB5C6, 0px -1px #AAB5C6, 1px 0px #AAB5C6, -1px 0px #AAB5C6"></i> ' + comments + '<br>\
+			<span style="float:right" class="sidebar__navigation__item__name"></span>	\
+      Last post: ' + elapsed + ' ago by <span class="sidebar__navigation__item__name">' + owner + '</span> 	\
 			</div>	\
 			</a>	\
 			</li>';
 			});
 		$(".sidebar__navigation:last").after('					\
-			<h3 class="sidebar__heading">Active Discussions</h3>	\
+			<h3 class="sidebar__heading">Deals</h3>	\
 			<ul class="sidebar__navigation">	\
-			' + c1 + '\
+			' + c3 + '\
 			<li class="sidebar__navigation__item">		\
-			<a class="sidebar__navigation__item__link" href="/discussions">		\
-			<div class="sidebar__navigation__item__name">More discussions</div>		\
+			<a class="sidebar__navigation__item__link" href="/discussions/deals">		\
+			<div class="sidebar__navigation__item__name">More deals</div>		\
 			<div class="sidebar__navigation__item__underline"></div>		\
 			</a>	\
 			</li>		\
@@ -679,46 +680,6 @@ if($(".page__heading__breadcrumbs:contains('Active Discussions')").length>0 && N
 			');
 	}
 
-
-	if ($(".page__heading__breadcrumbs:contains('Community Voted')").length) {
-
-		var c2 = "";
-		var total_votes = 0;
-		$(".page__heading__breadcrumbs:contains('Community Voted')").closest(".page__heading").next()
-			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
-				total_votes += Number($(this).attr("data-votes"));
-			});
-
-		$(".page__heading__breadcrumbs:contains('Community Voted')").closest(".page__heading").next()
-			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
-				var img = $(this).find(".global__image-inner-wrap").css('background-image');
-				img = img.replace('url(', '').replace(')', '').replace('"', '').replace('"', '');
-				var title = $(this).find(".table__column__heading").text();
-				var votes = Number($(this).attr("data-votes"));
-				var id = $(this).attr("data-id");
-				var url = $(this).find('a').attr('href');
-				var form = $(this).find("form");
-				$(form).find('.poll__vote-button').css("padding", 0).addClass('poll__vote-button-sidebar');
-				form = $(form).html().replace("Voted", "").replace("Vote", "");
-				var percent = Math.round(votes / (total_votes > 0 ? total_votes : 1) * 10000) / 100;
-				c2 += '<li class="sidebar__navigation__itemz table__row-outer-wrap' + ($(this).hasClass("is-selected") ? ' is-selected' : ' not-selected') + '" data-id=' + $(this).attr("data-id") + ' data-votes=' + votes + '>	\
-			<div class="sidebar__navigation__item__link" title="' + title + '">	\
-			<i class="global__image-outer-wrap global__image-outer-wrap--game-small">	\
-			<div class="global__image-inner-wrap" style="background-image:url(' + img + ');"></div></i>	\
-<div class="sidebar__navigation__item__underline">	\
-			<div class="sidebar__navigation__item__title" style="width:150px;white-space: nowrap;overflow:hidden"><a target="_blank" href="' + url + '">' + title + '</a></div>	\
-			' + votes + ' votes <br>' + percent + '%</div>	   <form>' + form + '</form>		\
-			</div></li>';
-			});
-		$(".sidebar__navigation:last").after('					\
-			<h3 class="sidebar__heading">Community Voted</h3>	\
-			<ul class="sidebar__navigation">	\
-			' + c2 + '\
-			</ul>	\
-			');
-	}
-
-*/
 	if ($(".homepage_heading:contains('Community Poll')").length) {
 		var c2 = "";
 		var total_votes = 0;
@@ -767,7 +728,7 @@ if(Number(GM_getValue("esg_commenteditor",1)))
 <div class="comment__submit-button" title="Italic text" type="wrap" value="*"><i class="fa fa-italic fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Bold text" type="wrap" value="**"><i class="fa fa-bold fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Strikethrough" type="wrap" value="~~"><i class="fa fa-strikethrough fa-fw"></i></div>	\
-<div class="comment__submit-button" title="Emoticons" type="emoticon">😀</div>	\
+<div class="comment__submit-button" title="Emojis" type="emoticon">😀</div>	\
 <div class="comment__submit-button serperator" title="List" type="list" value="* "><i class="fa fa-list-ul fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Spoiler" type="wrap" value="~"><i class="fa fa-stop fa-fw"></i></div>	\
 <div class="comment__submit-button" title="Code" type="wrap" value="```"><i class="fa fa-code fa-fw"></i></div>	\
@@ -1309,6 +1270,7 @@ setTimeout(function() {
 			type: "POST",
 			dataType: "json",
 			data: t.closest("form").serialize(),
+            timeout: 5000,
 			success: function(e) {
 				t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden");
 				if("success" === e.type)
@@ -1323,7 +1285,12 @@ setTimeout(function() {
 					$(t).closest(".giveaway__row-outer-wrap").slideToggle(500);
 				}
 				update_gas(e.points);
-			}
+			},
+            error: function(e)
+            {
+				t.closest("form").find(".sidebar__entry-loading").addClass("is-hidden");
+                t.closest("form").find(".sidebar__error").removeClass("is-hidden").html("undefined" != typeof e.link && e.link !== 0 ? '<a href="' + e.link + '"><i class="fa fa-exclamation-circle"></i> Timeout</a>' : '<i class="fa fa-exclamation-circle"></i> Timeout');
+            }
 		});
 	});
 	$(document).on('click', '.sidebar__error', function() {
