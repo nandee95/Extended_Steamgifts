@@ -4,6 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include		*steamgifts.com*
+// @exclude     *.steamgifts.com/happy-holidays*
 // @version		1.0.1
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts_Enter_All.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts_Enter_All.user.js
