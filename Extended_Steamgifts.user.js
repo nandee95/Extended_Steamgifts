@@ -4,7 +4,7 @@
 // @author		Nandee
 // @namespace	esg
 // @include	    *steamgifts.com*
-// @version		2.4.5
+// @version		2.4.6
 // @downloadURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @updateURL	https://github.com/nandee95/Extended_Steamgifts/raw/master/Extended_Steamgifts.user.js
 // @supportURL  http://steamcommunity.com/groups/extendedsg/discussions/0/
@@ -223,6 +223,8 @@ Changelog:
 - Added deals to the sidebar
 - Handled timeout for the enter/remove button
 - Fixed some code errors
+2.4.6 (2022. 12. 26)
+- Fixed sidebar
  */
 
 /* jshint multistr: true */
@@ -595,10 +597,10 @@ $(".icon_to_clipboard").each(function () {
 });
 
 //Active Discussions
-if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
-	if ($(".homepage_heading:contains('Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
+if($(".block_header_text:contains('Discussions')").length>0 && Number(GM_getValue("esg_autoscroll", 1))) {
+	if ($(".block_header_text:contains('Discussions')").length && Number(GM_getValue("esg_discussions", 1))) {
         var c1 = "";
-		$(".homepage_heading:contains('Discussions')").parent().find(".table").find(".table__rows").find(".table__row-outer-wrap").each(function() {
+		$(".block_header_text:contains('Discussions')").parent().parent().find(".table").find(".table__rows").find(".table__row-outer-wrap").each(function() {
 				var img = $(this).find(".table_image_avatar").css('background-image');
 
 				img = img.replace('url(', '').replace(')', '').replace('"', '').replace('"', '');
@@ -638,9 +640,9 @@ if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue
 			');
 	}
 
-    if ($(".homepage_heading:contains('Deals')").length && Number(GM_getValue("esg_discussions", 1))) {
+    if ($(".block_header_text:contains('Deals')").length && Number(GM_getValue("esg_discussions", 1))) {
 		var c3 = "";
-		$(".homepage_heading:contains('Deals')").parent().find(".table").find(".table__rows").find(".table__row-outer-wrap").each(function() {
+		$(".block_header_text:contains('Deals')").parent().parent().find(".table").find(".table__rows").find(".table__row-outer-wrap").each(function() {
 				var img = $(this).find(".table_image_avatar").css('background-image');
 
 				img = img.replace('url(', '').replace(')', '').replace('"', '').replace('"', '');
@@ -650,7 +652,6 @@ if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue
 			  var owner = $(this).find(".table__column__secondary-link").eq(1).text();
 				var elapsed = $(this).find(".table__column__secondary-link").eq(0).closest("p").find("span").text();
 				var title = otitle;
-
 
 				c3 += '<li class="sidebar__navigation__itemz">	\
 			<a class="sidebar__navigation__item__link" href="' + url + '" title="' + otitle.replace(/\"/g,"'") + '" >	\
@@ -680,15 +681,15 @@ if($(".homepage_heading:contains('Discussions')").length>0 && Number(GM_getValue
 			');
 	}
 
-	if ($(".homepage_heading:contains('Community Poll')").length) {
+	if ($(".block_header_text:contains('Community Poll')").length) {
 		var c2 = "";
 		var total_votes = 0;
-		$(".homepage_heading:contains('Community Poll')").parent().find(".poll")
+		$(".block_header_text:contains('Community Poll')").parent().parent().find(".poll")
 			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
 				total_votes += Number($(this).attr("data-votes"));
 			});
 
-		$(".homepage_heading:contains('Community Poll')").parent().find(".poll")
+		$(".block_header_text:contains('Community Poll')").parent().parent().find(".poll")
 			.find(".table__rows").find(".table__row-outer-wrap").each(function() {
 				var img = $(this).find(".global__image-inner-wrap").css('background-image');
 			  if(img)
